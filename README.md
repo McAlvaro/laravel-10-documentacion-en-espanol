@@ -1,21 +1,7 @@
-# Welcome!
+# Bienvenida
 
-## Welcome to MyAPI
+¡Bienvenidos al proyecto de traducción a español de la documentación de Laravel 10!
 
-Welcome to MyAPI! Here you'll find all the documentation you need to get up and running with the MyAPI API.
+Nos complace darles la bienvenida a este proyecto, que tiene como objetivo hacer que la documentación oficial de Laravel esté disponible en español para que sea accesible a más personas en todo el mundo.
 
-## Want to jump right in?
-
-Feeling like an eager beaver? Jump in to the quick start docs and get making your first request:
-
-{% content-ref url="broken-reference" %}
-[Broken link](broken-reference)
-{% endcontent-ref %}
-
-## Want to deep dive?
-
-Dive a little deeper and start exploring our API reference to get an idea of everything that's possible with the API:
-
-{% content-ref url="reference/prologo/" %}
-[prologo](reference/prologo/)
-{% endcontent-ref %}
+Es importante destacar que actualmente este proyecto es llevado adelante por una sola persona, quien está trabajando arduamente para hacerlo realidad. A pesar de ello, estamos comprometidos a llevarlo adelante de manera constante y consistente.
