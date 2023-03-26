@@ -20,3 +20,11 @@ Para todas las versiones de Laravel, se proporcionan correcciones de errores dur
 | 9       | 8.0 - 8.2 | 8 de febrero de 2022    | 8 de agosto de 2023         | 6 de febrero de 2024          |
 | 10      | 8.1 - 8.2 | 14 de febrero de 2023   | 6 de agosto de 2024         | 4 de febrero de 2025          |
 | 11      | 8.2       | T1 2024                 | 5 de agosto de 2025         | 3 de febrero de 2026          |
+
+## Laravel 10
+
+Como ya sabrás, Laravel hizo la transición a versiones anuales con el lanzamiento de Laravel 8. Anteriormente, las versiones principales se lanzaban cada 6 meses. Esta transición tiene como objetivo aliviar la carga de mantenimiento de la comunidad y desafiar a nuestro equipo de desarrollo para enviar nuevas características sorprendentes y potentes sin introducir cambios de última hora. Por lo tanto, hemos enviado una variedad de características robustas a Laravel 9 sin romper la compatibilidad con versiones anteriores.
+
+Por lo tanto, este compromiso de lanzar grandes novedades durante la versión actual probablemente hará que las futuras versiones "mayores" se utilicen principalmente para tareas de "mantenimiento", como la actualización de las dependencias aguas arriba, como puede verse en estas notas de la versión.
+
+Laravel 10 continúa las mejoras realizadas en Laravel 9.x introduciendo argumentos y tipos de retorno a todos los métodos del esqueleto de la aplicación, así como a todos los archivos stub utilizados para generar clases en todo el framework. Además, se ha introducido una nueva capa de abstracción fácil de usar por los desarrolladores para iniciar procesos externos e interactuar con ellos. Además, Laravel Pennant se ha introducido para proporcionar un enfoque maravilloso para la gestión de su aplicación "feature flags".
