@@ -29,3 +29,12 @@ Debe actualizar las siguientes dependencias en el archivo `composer.json` de su 
 * `doctrine/dbal` a `^3.0`
 * `spatie/laravel-ignition` a `^2.0`
 * `laravel/passport` a `^11.0`(Guía de Actualización)
+
+Si está actualizando a Sanctum 3.x desde la serie de versiones 2.x, consulte la [guía de actualización de Sanctum](https://github.com/laravel/sanctum/blob/3.x/UPGRADE.md).
+
+Además, si desea utilizar [PHPUnit 10](https://phpunit.de/announcements/phpunit-10.html), debe eliminar el atributo `processUncoveredFiles` de la sección `<coverage>` del archivo de configuración `phpunit.xml` de su aplicación. A continuación, actualiza las siguientes dependencias en el archivo `composer.json` de tu aplicación:
+
+* `nunomaduro/collision` a `^7.0`
+* `phpunit/phpunit` a `^10.0`
+
+Por último, examine cualquier otro paquete de terceros consumido por su aplicación y verifique que está utilizando la versión adecuada para la compatibilidad con Laravel 10.
