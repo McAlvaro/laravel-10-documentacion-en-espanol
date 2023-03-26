@@ -28,3 +28,17 @@ Como ya sabrás, Laravel hizo la transición a versiones anuales con el lanzamie
 Por lo tanto, este compromiso de lanzar grandes novedades durante la versión actual probablemente hará que las futuras versiones "mayores" se utilicen principalmente para tareas de "mantenimiento", como la actualización de las dependencias aguas arriba, como puede verse en estas notas de la versión.
 
 Laravel 10 continúa las mejoras realizadas en Laravel 9.x introduciendo argumentos y tipos de retorno a todos los métodos del esqueleto de la aplicación, así como a todos los archivos stub utilizados para generar clases en todo el framework. Además, se ha introducido una nueva capa de abstracción fácil de usar por los desarrolladores para iniciar procesos externos e interactuar con ellos. Además, Laravel Pennant se ha introducido para proporcionar un enfoque maravilloso para la gestión de su aplicación "feature flags".
+
+## PHP 8.1
+
+Laravel 10.x requiere una versión mínima de PHP 8.1.
+
+## Tipos
+
+[Nuno Maduro](https://github.com/nunomaduro) ha contribuido con el esqueleto de la aplicación y las sugerencias de tipo.
+
+En su lanzamiento inicial, Laravel utilizó todas las características de type-hinting disponibles en PHP en ese momento. Sin embargo, muchas nuevas características han sido añadidas a PHP en los años posteriores, incluyendo sugerencias de tipos primitivos adicionales, tipos de retorno y tipos de unión.
+
+Laravel 10.x actualiza a fondo el esqueleto de la aplicación y todos los stubs utilizados por el framework para introducir argumentos y tipos de retorno a todas las firmas de métodos. Además, se ha eliminado la información de sugerencia de tipo "doc block".
+
+Este cambio es totalmente compatible con las aplicaciones existentes. Por lo tanto, las aplicaciones existentes que no tengan estas sugerencias de tipo seguirán funcionando con normalidad.
