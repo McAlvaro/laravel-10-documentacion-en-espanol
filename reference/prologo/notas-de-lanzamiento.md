@@ -79,3 +79,45 @@ Por supuesto, para mayor comodidad, también están disponibles las directivas B
 ```
 
 Pennant ofrece una variedad de funciones y API más avanzadas. Para más información, consulte la completa [documentación de Pennant](https://laravel.com/docs/10.x/pennant).
+
+## Interacción de Procesos
+
+_La capa de abstracción de procesos fue aportada por_ [_Nuno Maduro_](https://github.com/nunomaduro) _y_ [_Taylor Otwell_](https://github.com/taylorotwell)_._
+
+Laravel 10.x introduce una hermosa capa de abstracción para iniciar e interactuar con procesos externos a través de una nueva fachada `Process`:
+
+```php
+use Illuminate\Support\Facades\Process;
+ 
+$result = Process::run('ls -la');
+ 
+return $result->output();
+```
+
+Los procesos pueden incluso iniciarse en pools, lo que permite una cómoda ejecución y gestión de procesos concurrentes:
+
+```php
+use Illuminate\Process\Pool;
+use Illuminate\Support\Facades\Process;
+ 
+[$first, $second, $third] = Process::concurrently(function (Pool $pool) {
+    $pool->command('cat first.txt');
+    $pool->command('cat second.txt');
+    $pool->command('cat third.txt');
+});
+ 
+return $first->output();
+```
+
+Además, los procesos pueden falsificarse para facilitar las pruebas:
+
+```php
+Process::fake();
+ 
+// ...
+ 
+Process::assertRan('ls -la');
+```
+
+Para más información sobre la interacción con los procesos, [consulte la documentación completa de los mismos](https://laravel.com/docs/10.x/processes).
+
