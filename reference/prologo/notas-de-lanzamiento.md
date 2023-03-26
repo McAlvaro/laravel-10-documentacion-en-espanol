@@ -135,3 +135,26 @@ Para mayor comodidad, las pruebas más lentas se mostrarán directamente en la s
 
 <figure><img src="https://user-images.githubusercontent.com/5457236/217328439-d8d983ec-d0fc-4cde-93d9-ae5bccf5df14.png" alt=""><figcaption></figcaption></figure>
 
+## Pest Scaffolding
+
+Ahora los nuevos proyectos Laravel pueden crearse con el andamiaje de pruebas Pest por defecto. Para optar por esta característica, proporcione la bandera `--pest` al crear una nueva aplicación a través del instalador de Laravel:
+
+```shell
+laravel new example-application --pest
+```
+
+## Generador de Mensajes CLI
+
+Las instrucciones del generador CLI han sido elaboradas por [Jess Archer](https://github.com/jessarcher).
+
+Para mejorar la experiencia del desarrollador del framework, todos los comandos `make` incorporados en Laravel ya no requieren ninguna entrada. Si los comandos se invocan sin entrada, se le pedirá los argumentos necesarios:
+
+```shell
+php artisan make:controller
+```
+
+## Horizon / Telescope
+
+[Horizon](https://laravel.com/docs/10.x/horizon) y [Telescope](https://laravel.com/docs/10.x/telescope) se han actualizado con un aspecto fresco y moderno que incluye mejoras en la tipografía, el espaciado y el diseño:
+
+<figure><img src="https://laravel.com/img/docs/horizon-example.png" alt=""><figcaption></figcaption></figure>
