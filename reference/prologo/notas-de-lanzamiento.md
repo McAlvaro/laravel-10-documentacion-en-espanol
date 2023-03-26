@@ -121,3 +121,17 @@ Process::assertRan('ls -la');
 
 Para más información sobre la interacción con los procesos, [consulte la documentación completa de los mismos](https://laravel.com/docs/10.x/processes).
 
+## Perfiles de Pruebas
+
+[N_uno Maduro_](https://github.com/nunomaduro) _ha contribuido a la elaboración de los perfiles de las pruebas._
+
+El comando de `test` Artisan ha recibido una nueva opción `--profile` que le permite identificar fácilmente las pruebas más lentas de su aplicación:
+
+```shell
+php artisan test --profile
+```
+
+Para mayor comodidad, las pruebas más lentas se mostrarán directamente en la salida CLI:
+
+<figure><img src="https://user-images.githubusercontent.com/5457236/217328439-d8d983ec-d0fc-4cde-93d9-ae5bccf5df14.png" alt=""><figcaption></figcaption></figure>
+
