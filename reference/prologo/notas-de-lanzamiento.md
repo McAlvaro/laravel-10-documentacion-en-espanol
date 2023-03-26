@@ -42,3 +42,40 @@ En su lanzamiento inicial, Laravel utilizó todas las características de type-h
 Laravel 10.x actualiza a fondo el esqueleto de la aplicación y todos los stubs utilizados por el framework para introducir argumentos y tipos de retorno a todas las firmas de métodos. Además, se ha eliminado la información de sugerencia de tipo "doc block".
 
 Este cambio es totalmente compatible con las aplicaciones existentes. Por lo tanto, las aplicaciones existentes que no tengan estas sugerencias de tipo seguirán funcionando con normalidad.
+
+## Laravel Pennant
+
+_Laravel Pennant fue desarrollado por_ [_Tim MacDonald_](https://github.com/timacdonald)_._
+
+Un nuevo paquete de primera parte, Laravel Pennant, ha sido liberado. Laravel Pennant ofrece un enfoque ligero y optimizado para la gestión de las banderas de características de su aplicación. Pennant incluye un controlador de `array` en memoria y un controlador de `database` para el almacenamiento persistente de características.
+
+Las características pueden definirse fácilmente mediante el método Feature::define:
+
+```php
+use Laravel\Pennant\Feature;
+use Illuminate\Support\Lottery;
+ 
+Feature::define('new-onboarding-flow', function () {
+    return Lottery::odds(1, 10);
+});
+```
+
+Una vez definida una función, puede determinar fácilmente si el usuario actual tiene acceso a la función en cuestión:
+
+```php
+if (Feature::active('new-onboarding-flow')) {
+    // ...
+}
+```
+
+Por supuesto, para mayor comodidad, también están disponibles las directivas Blade:
+
+```php
+@feature('new-onboarding-flow')
+    <div>
+        <!-- ... -->
+    </div>
+@endfeature
+```
+
+Pennant ofrece una variedad de funciones y API más avanzadas. Para más información, consulte la completa [documentación de Pennant](https://laravel.com/docs/10.x/pennant).
