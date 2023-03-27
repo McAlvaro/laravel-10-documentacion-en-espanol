@@ -1,23 +1,13 @@
 # Primeros Pasos
 
-Dive into the specifics of each API endpoint by checking out our complete documentation.
+[instalacion.md](instalacion.md "mention")
 
-## Pets
+[configuracion.md](configuracion.md "mention")
 
-All the methods associated with `CRUD`ing some pets. Which isn't as weird as it sounds:
+[estructura-de-directorios.md](estructura-de-directorios.md "mention")
 
-{% content-ref url="../prologo/notas-de-lanzamiento.md" %}
-[notas-de-lanzamiento.md](../prologo/notas-de-lanzamiento.md)
-{% endcontent-ref %}
+[frontend.md](frontend.md "mention")
 
-## Users
+[kits-de-inicio.md](kits-de-inicio.md "mention")
 
-Everything related to users:
-
-{% content-ref url="../prologo/guia-de-actualizacion.md" %}
-[guia-de-actualizacion.md](../prologo/guia-de-actualizacion.md)
-{% endcontent-ref %}
-
-{% hint style="info" %}
-**Good to know:** Using the 'Page Link' block lets you link directly to a page. If this page's name, URL or parent location changes, the reference will be kept up to date. You can also mention a page – like [notas-de-lanzamiento.md](../prologo/notas-de-lanzamiento.md "mention") – if you don't want a block-level link.
-{% endhint %}
+[despliegue.md](despliegue.md "mention")
