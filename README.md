@@ -1,8 +1,3 @@
----
-cover: .gitbook/assets/PortadaLaravelEspDocSocial.png
-coverY: 215
----
-
 # Bienvenida
 
 <figure><img src=".gitbook/assets/PortadaLaravelEspDoc.png" alt="Laravel Documentación en Español"><figcaption></figcaption></figure>
