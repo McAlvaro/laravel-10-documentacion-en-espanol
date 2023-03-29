@@ -32,3 +32,47 @@ Laravel es increíblemente escalable. Gracias a la naturaleza escalable de PHP y
 
 Laravel combina los mejores paquetes del ecosistema PHP para ofrecer el framework más robusto y fácil de desarrollar que existe. Además, miles de desarrolladores con talento de todo el mundo han [contribuido al framework](https://github.com/laravel/framework). Quién sabe, quizás incluso te conviertas en un contribuidor de Laravel.
 
+## Tu Primer Proyecto Laravel
+
+Antes de crear tu primer proyecto Laravel, debes asegurarte de que tu máquina local tiene PHP y [Composer](https://getcomposer.org) instalados. Si estás desarrollando en macOS, PHP y Composer se pueden instalar a través de [Homebrew](https://brew.sh/). Además, recomendamos [instalar Node y NPM](https://nodejs.org).
+
+Después de haber instalado PHP y Composer, puede crear un nuevo proyecto Laravel a través del comando Composer `create-project`:
+
+```shell
+composer create-project laravel/laravel example-app
+```
+
+O bien, puede crear nuevos proyectos Laravel mediante la instalación global del instalador de Laravel a través de Composer:
+
+```shell
+composer global require laravel/installer
+ 
+laravel new example-app
+```
+
+Una vez creado el proyecto, inicia el servidor de desarrollo local de Laravel utilizando el comando `serve` de la CLI Artisan de Laravel:
+
+```shell
+cd example-app
+ 
+php artisan serve
+```
+
+Una vez que hayas iniciado el servidor de desarrollo Artisan, tu aplicación será accesible en tu navegador web en `http://localhost:8000`. A continuación, estás listo para comenzar a dar los [siguientes pasos en el ecosistema Laravel](https://laravel.com/docs/10.x/installation#next-steps). Por supuesto, también puedes querer [configurar una base de datos](https://laravel.com/docs/10.x/installation#databases-and-migrations).
+
+{% hint style="info" %}
+Si desea una ventaja al desarrollar su aplicación Laravel, considere el uso de uno de nuestros kits de inicio. Los [kits de inicio](https://laravel.com/docs/10.x/starter-kits) de Laravel proporcionan un andamiaje de autenticación backend y frontend para tu nueva aplicación Laravel.
+{% endhint %}
+
+## Laravel y Docker
+
+Queremos que sea lo más fácil posible empezar con Laravel independientemente de tu sistema operativo preferido. Por lo tanto, hay una variedad de opciones para desarrollar y ejecutar un proyecto Laravel en tu máquina local. Si bien es posible que desees explorar estas opciones más adelante, Laravel proporciona [Sail](https://laravel.com/docs/10.x/sail), una solución integrada para ejecutar tu proyecto Laravel utilizando [Docker](https://www.docker.com).
+
+Docker es una herramienta para ejecutar aplicaciones y servicios en "contenedores" pequeños y ligeros que no interfieren con el software instalado o la configuración de tu máquina local. Esto significa que no tienes que preocuparte de configurar o instalar complicadas herramientas de desarrollo como servidores web y bases de datos en tu máquina local. Para empezar, sólo tienes que instalar [Docker Desktop](https://www.docker.com/products/docker-desktop).
+
+Laravel Sail es una interfaz de línea de comandos ligera para interactuar con la configuración Docker por defecto de Laravel. Sail proporciona un gran punto de partida para la construcción de una aplicación Laravel usando PHP, MySQL y Redis sin necesidad de experiencia previa en Docker.
+
+{% hint style="info" %}
+¿Ya es un experto en Docker? No te preocupes. Todo sobre Sail se puede personalizar utilizando el archivo `docker-compose.yml` incluido con Laravel.
+{% endhint %}
+
