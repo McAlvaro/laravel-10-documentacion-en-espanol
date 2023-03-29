@@ -252,7 +252,7 @@ Si esta es la forma en la que planeas usar Laravel, puede que quieras consultar 
 Si quiere empezar a crear su aplicación, eche un vistazo a uno de nuestros [kits de inicio de aplicaciones](https://laravel.com/docs/10.x/starter-kits) oficiales.
 {% endhint %}
 
-## Laravel el API Backend
+## Laravel API Backend
 
 Laravel también puede servir como API backend para una aplicación JavaScript de una sola página o una aplicación móvil. Por ejemplo, puedes usar Laravel como API backend para tu aplicación [Next.js](https://nextjs.org). En este contexto, puede utilizar Laravel para proporcionar [autenticación](https://laravel.com/docs/10.x/sanctum) y almacenamiento / recuperación de datos para su aplicación, al mismo tiempo que aprovecha los potentes servicios de Laravel como colas, correos electrónicos, notificaciones y más.
 
