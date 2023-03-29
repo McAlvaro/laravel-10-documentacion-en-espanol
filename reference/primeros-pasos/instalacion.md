@@ -209,7 +209,8 @@ touch database/database.sqlite
 A continuación, actualiza tu fichero de configuración `.env` para utilizar el controlador de base de datos `sqlite` de Laravel. Puedes eliminar las otras opciones de configuración de la base de datos:
 
 ```
-DB_CONNECTION=sqlite 
+DB_CONNECTION=sqlite
+ 
 DB_CONNECTION=mysql 
 DB_HOST=127.0.0.1 
 DB_PORT=3306 
@@ -223,4 +224,41 @@ Una vez que haya configurado su base de datos SQLite, puede ejecutar las [migrac
 ```shell
 php artisan migrate
 ```
+
+## Próximos pasos
+
+Ahora que has creado tu proyecto Laravel, puede que te estés preguntando qué aprender a continuación. En primer lugar, te recomendamos que te familiarices con el funcionamiento de Laravel leyendo la siguiente documentación:
+
+* [Ciclo de vida de las peticiones](https://laravel.com/docs/10.x/lifecycle)
+* [Configuración](https://laravel.com/docs/10.x/configuration)
+* [Estructura del directorios](https://laravel.com/docs/10.x/structure)
+* [Frontend](https://laravel.com/docs/10.x/installation#initial-configuration)
+* [Contenedor de Servicio](https://laravel.com/docs/10.x/container)
+* [Facades](https://laravel.com/docs/10.x/facades)
+
+Cómo desea utilizar Laravel también dictará los próximos pasos en su viaje. Hay una variedad de maneras de utilizar Laravel, y vamos a explorar dos casos de uso principales para el marco de abajo.
+
+{% hint style="info" %}
+¿Es nuevo en Laravel? Echa un vistazo a la [Laravel Bootcamp](https://bootcamp.laravel.com/) para un recorrido práctico del marco mientras te guiamos a través de la construcción de su primera aplicación Laravel.
+{% endhint %}
+
+## Laravel  Framework Full Stack&#x20;
+
+Laravel puede servir como un framework full stack. Por framework "full stack" queremos decir que vas a usar Laravel para enrutar peticiones a tu aplicación y renderizar tu frontend vía [Blade templates](https://laravel.com/docs/10.x/blade) o una tecnología híbrida de aplicación de una sola página como [Inertia](https://inertiajs.com). Esta es la forma más común de utilizar el framework Laravel y, en nuestra opinión, la forma más productiva de utilizar Laravel.
+
+Si esta es la forma en la que planeas usar Laravel, puede que quieras consultar nuestra documentación sobre [desarrollo frontend](https://laravel.com/docs/10.x/frontend), [routing](https://laravel.com/docs/10.x/routing), [views](https://laravel.com/docs/10.x/views), o el [Eloquent ORM](https://laravel.com/docs/10.x/eloquent). Además, puede que te interese conocer paquetes de la comunidad como [Livewire](https://laravel-livewire.com) e [Inertia](https://inertiajs.com). Estos paquetes te permiten usar Laravel como un framework completo mientras disfrutas de muchos de los beneficios de la interfaz de usuario que proporcionan las aplicaciones JavaScript de una sola página.
+
+{% hint style="info" %}
+Si quiere empezar a crear su aplicación, eche un vistazo a uno de nuestros [kits de inicio de aplicaciones](https://laravel.com/docs/10.x/starter-kits) oficiales.
+{% endhint %}
+
+## Laravel el API Backend
+
+Laravel también puede servir como API backend para una aplicación JavaScript de una sola página o una aplicación móvil. Por ejemplo, puedes usar Laravel como API backend para tu aplicación [Next.js](https://nextjs.org). En este contexto, puede utilizar Laravel para proporcionar [autenticación](https://laravel.com/docs/10.x/sanctum) y almacenamiento / recuperación de datos para su aplicación, al mismo tiempo que aprovecha los potentes servicios de Laravel como colas, correos electrónicos, notificaciones y más.
+
+Si esta es la forma en la que planeas usar Laravel, puede que quieras consultar nuestra documentación sobre [routing](https://laravel.com/docs/10.x/routing), [Laravel Sanctum](https://laravel.com/docs/10.x/sanctum), y el [Eloquent ORM](https://laravel.com/docs/10.x/eloquent).
+
+{% hint style="info" %}
+¿Necesitas un scaffolding inicial para tu backend Laravel y tu frontend Next.js? Laravel Breeze ofrece una [API stack](https://laravel.com/docs/10.x/starter-kits#breeze-and-next) así como una [Next.js frontend implementation](https://github.com/laravel/breeze-next) para que puedas empezar en cuestión de minutos.
+{% endhint %}
 
