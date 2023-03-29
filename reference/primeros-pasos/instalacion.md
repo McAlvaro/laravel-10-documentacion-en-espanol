@@ -102,3 +102,64 @@ Una vez iniciados los contenedores Docker de la aplicación, puedes acceder a la
 Para seguir aprendiendo más sobre Laravel Sail, revisa su [documentación completa](https://laravel.com/docs/10.x/sail).
 {% endhint %}
 
+## Primeros pasos en Windows
+
+Antes de crear una nueva aplicación Laravel en tu máquina Windows, asegúrate de instalar [Docker Desktop](https://www.docker.com/products/docker-desktop). A continuación, debes asegurarte de que Windows Subsystem for Linux 2 (WSL2) está instalado y habilitado. WSL le permite ejecutar ejecutables binarios de Linux de forma nativa en Windows 10. Encontrará información sobre cómo instalar y habilitar WSL2 en la [documentación del entorno de desarrollo de Microsoft](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+
+Después de instalar y habilitar WSL2, debe asegurarse de que Docker Desktop está [configurado para utilizar el backend WSL2](https://docs.docker.com/docker-for-windows/wsl/).
+
+A continuación, estás listo para crear tu primer proyecto Laravel. Inicia [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?rtc=1\&activetab=pivot:overviewtab) y comienza una nueva sesión de terminal para tu sistema operativo Linux WSL2. A continuación, puedes utilizar un simple comando de terminal para crear un nuevo proyecto Laravel. Por ejemplo, para crear una nueva aplicación Laravel en un directorio llamado "example-app", puedes ejecutar el siguiente comando en tu terminal:
+
+```shell
+curl -s https://laravel.build/example-app | bash
+```
+
+Por supuesto, puedes cambiar "example-app" en esta URL por lo que quieras sólo asegúrate de que el nombre de la aplicación sólo contiene caracteres alfanuméricos, guiones y guiones bajos. El directorio de la aplicación Laravel se creará dentro del directorio desde el que ejecutes el comando.
+
+La instalación de Sail puede tardar varios minutos mientras se crean los contenedores de aplicaciones de Sail en su máquina local.
+
+Una vez creado el proyecto, puede navegar hasta el directorio de la aplicación e iniciar Laravel Sail. Laravel Sail proporciona una sencilla interfaz de línea de comandos para interactuar con la configuración Docker por defecto de Laravel:
+
+```shell
+cd example-app
+ 
+./vendor/bin/sail up
+```
+
+Una vez iniciados los contenedores Docker de la aplicación, puedes acceder a la aplicación en tu navegador web en: [http://localhost](http://localhost).
+
+{% hint style="info" %}
+Para seguir aprendiendo más sobre Laravel Sail, revisa su [documentación completa.](https://laravel.com/docs/10.x/sail)
+{% endhint %}
+
+### Desarrollo dentro de WSL2
+
+Por supuesto, necesitarás poder modificar los archivos de la aplicación Laravel que fueron creados dentro de tu instalación WSL2. Para ello, te recomendamos que utilices el editor [Visual Studio Code](https://code.visualstudio.com) de Microsoft y su extensión para [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
+
+Una vez instaladas estas herramientas, puede abrir cualquier proyecto Laravel ejecutando el comando `code .` desde el directorio raíz de su aplicación utilizando el Terminal de Windows.
+
+## Primeros pasos en Linux
+
+Si estás desarrollando en Linux y [Docker Compose](https://docs.docker.com/compose/install/) ya está instalado, puedes utilizar un simple comando de terminal para crear un nuevo proyecto Laravel. Por ejemplo, para crear una nueva aplicación Laravel en un directorio llamado "example-app", puedes ejecutar el siguiente comando en tu terminal:
+
+```shell
+curl -s https://laravel.build/example-app | bash
+```
+
+Por supuesto, puedes cambiar "example-app" en esta URL por lo que quieras sólo asegúrate de que el nombre de la aplicación sólo contiene caracteres alfanuméricos, guiones y guiones bajos. El directorio de la aplicación Laravel se creará dentro del directorio desde el que ejecutes el comando.
+
+La instalación de Sail puede tardar varios minutos mientras se crean los contenedores de aplicación de Sail en su máquina local.
+
+Una vez creado el proyecto, puede navegar hasta el directorio de la aplicación e iniciar Laravel Sail. Laravel Sail proporciona una sencilla interfaz de línea de comandos para interactuar con la configuración Docker por defecto de Laravel:
+
+```shell
+cd example-app
+ 
+./vendor/bin/sail up
+```
+
+Una vez iniciados los contenedores Docker de la aplicación, puedes acceder a la aplicación en tu navegador web en: [http://localhost](http://localhost).
+
+{% hint style="info" %}
+Para seguir aprendiendo más sobre Laravel Sail, revisa su [documentación completa.](https://laravel.com/docs/10.x/sail)
+{% endhint %}
