@@ -186,3 +186,41 @@ Todos los archivos de configuración para el framework Laravel se almacenan en e
 
 Laravel casi no necesita configuración adicional fuera de la caja. ¡Eres libre de empezar a desarrollar! Sin embargo, es posible que desees revisar el archivo `config/app.php` y su documentación. Contiene varias opciones como `timezone` y `locale` que puede que desees cambiar de acuerdo a tu aplicación.
 
+### Configuración basada en el entorno
+
+Dado que muchos de los valores de las opciones de configuración de Laravel pueden variar dependiendo de si tu aplicación se está ejecutando en tu máquina local o en un servidor web de producción, muchos valores de configuración importantes se definen utilizando el archivo `.env` que existe en la raíz de tu aplicación.
+
+Su archivo `.env` no debe ser enviado al control de código fuente de su aplicación, ya que cada desarrollador / servidor que utilice su aplicación podría requerir una configuración de entorno diferente. Además, esto supondría un riesgo de seguridad en caso de que un intruso accediera a tu repositorio de control de código fuente, ya que cualquier credencial sensible quedaría expuesta.
+
+{% hint style="info" %}
+Para obtener más información sobre el archivo `.env` y la configuración basada en entornos, consulte la [documentación de configuración completa](https://laravel.com/docs/10.x/configuration#environment-configuration).
+{% endhint %}
+
+### Bases de datos y migraciones
+
+Ahora que has creado tu aplicación Laravel, probablemente quieras almacenar algunos datos en una base de datos. Por defecto, el fichero de configuración `.env` de tu aplicación especifica que Laravel interactuará con una base de datos MySQL y accederá a la base de datos en `127.0.0.1`. Si estás desarrollando en macOS y necesitas instalar MySQL, Postgres o Redis localmente, puede que te resulte conveniente utilizar [DBngin](https://dbngin.com/).
+
+Si no quieres instalar MySQL o Postgres en tu máquina local, siempre puedes utilizar una base de datos [SQLite](https://www.sqlite.org/index.html). SQLite es un motor de base de datos pequeño, rápido y autónomo. Para empezar, crea una base de datos SQLite creando un archivo SQLite vacío. Típicamente, este archivo existirá dentro del directorio `database` de tu aplicación Laravel:
+
+```shell
+touch database/database.sqlite
+```
+
+A continuación, actualiza tu fichero de configuración `.env` para utilizar el controlador de base de datos `sqlite` de Laravel. Puedes eliminar las otras opciones de configuración de la base de datos:
+
+```
+DB_CONNECTION=sqlite 
+DB_CONNECTION=mysql 
+DB_HOST=127.0.0.1 
+DB_PORT=3306 
+DB_DATABASE=laravel 
+DB_USERNAME=root 
+DB_PASSWORD= 
+```
+
+Una vez que haya configurado su base de datos SQLite, puede ejecutar las [migraciones de base de datos](https://laravel.com/docs/10.x/migrations) de su aplicación, que creará las tablas de la base de datos de su aplicación:
+
+```shell
+php artisan migrate
+```
+
