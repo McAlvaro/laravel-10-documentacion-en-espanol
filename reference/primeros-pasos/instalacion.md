@@ -76,3 +76,29 @@ Laravel Sail es una interfaz de línea de comandos ligera para interactuar con l
 ¿Ya es un experto en Docker? No te preocupes. Todo sobre Sail se puede personalizar utilizando el archivo `docker-compose.yml` incluido con Laravel.
 {% endhint %}
 
+## Primeros pasos en macOS
+
+Si estás desarrollando en un Mac y [Docker Desktop](https://www.docker.com/products/docker-desktop) ya está instalado, puedes utilizar un simple comando de terminal para crear un nuevo proyecto Laravel. Por ejemplo, para crear una nueva aplicación Laravel en un directorio llamado "example-app", puedes ejecutar el siguiente comando en tu terminal:
+
+```shell
+curl -s "https://laravel.build/example-app" | bash
+```
+
+Por supuesto, puedes cambiar "example-app" en esta URL por lo que quieras sólo asegúrate de que el nombre de la aplicación sólo contiene caracteres alfanuméricos, guiones y guiones bajos. El directorio de la aplicación Laravel se creará dentro del directorio desde el que ejecutes el comando.
+
+La instalación de Sail puede tardar varios minutos mientras se crean los contenedores de aplicaciones de Sail en su máquina local.
+
+Una vez creado el proyecto, puede navegar hasta el directorio de la aplicación e iniciar Laravel Sail. Laravel Sail proporciona una sencilla interfaz de línea de comandos para interactuar con la configuración Docker por defecto de Laravel:
+
+```shell
+cd example-app
+ 
+./vendor/bin/sail up
+```
+
+Una vez iniciados los contenedores Docker de la aplicación, puedes acceder a la aplicación en tu navegador web en: [http://localhost](http://localhost).
+
+{% hint style="info" %}
+Para seguir aprendiendo más sobre Laravel Sail, revisa su [documentación completa](https://laravel.com/docs/10.x/sail).
+{% endhint %}
+
