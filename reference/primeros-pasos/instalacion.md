@@ -180,3 +180,9 @@ Puede indicar a Sail que instale un [Devcontainer](https://laravel.com/docs/10.x
 curl -s "https://laravel.build/example-app?with=mysql,redis&devcontainer" | bash
 ```
 
+## Configuración inicial
+
+Todos los archivos de configuración para el framework Laravel se almacenan en el directorio `config`. Cada opción está documentada, así que no dudes en echar un vistazo a los archivos y familiarizarte con las opciones disponibles.
+
+Laravel casi no necesita configuración adicional fuera de la caja. ¡Eres libre de empezar a desarrollar! Sin embargo, es posible que desees revisar el archivo `config/app.php` y su documentación. Contiene varias opciones como `timezone` y `locale` que puede que desees cambiar de acuerdo a tu aplicación.
+
