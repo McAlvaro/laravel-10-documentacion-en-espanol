@@ -163,3 +163,20 @@ Una vez iniciados los contenedores Docker de la aplicación, puedes acceder a la
 {% hint style="info" %}
 Para seguir aprendiendo más sobre Laravel Sail, revisa su [documentación completa.](https://laravel.com/docs/10.x/sail)
 {% endhint %}
+
+## Elegir sus servicios Sail
+
+Al crear una nueva aplicación Laravel a través de Sail, puedes utilizar la variable `with` query string para elegir qué servicios deben configurarse en el archivo `docker-compose.yml` de tu nueva aplicación. Los servicios disponibles son `mysql`, `pgsql`, `mariadb`, `redis`, `memcached`, `meilisearch`, `minio`, `selenium` y `mailpit`:
+
+```shell
+curl -s "https://laravel.build/example-app?with=mysql,redis" | bash
+```
+
+Si no especifica qué servicios desea configurar, se configurará una pila por defecto de `mysql`, `redis`, `meilisearch`, `mailpit` y `selenium`.
+
+Puede indicar a Sail que instale un [Devcontainer](https://laravel.com/docs/10.x/sail#using-devcontainers) por defecto añadiendo el parámetro `devcontainer` a la URL:
+
+```shell
+curl -s "https://laravel.build/example-app?with=mysql,redis&devcontainer" | bash
+```
+
