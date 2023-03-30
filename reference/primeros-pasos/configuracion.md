@@ -196,4 +196,82 @@ La opción `debug` de su fichero de configuración `config/app.php` determina cu
 
 Para el desarrollo local, debe establecer la variable de entorno `APP_DEBUG` en `true`. **En su entorno de producción, este valor debe ser siempre `false`. Si la variable se establece en `true` en producción, corres el riesgo de exponer valores de configuración sensibles a los usuarios finales de tu aplicación.**
 
-****
+## Modo de mantenimiento
+
+Cuando su aplicación está en modo de mantenimiento, se mostrará una vista personalizada para todas las peticiones que entren en su aplicación. Esto hace que sea fácil de "desactivar" su aplicación mientras se está actualizando o cuando se está realizando el mantenimiento. Se incluye una comprobación del modo de mantenimiento en la pila de middleware predeterminada para su aplicación. Si la aplicación está en modo de mantenimiento, una instancia `Symfony\Component\HttpKernel\Exception\HttpException` será lanzada con un código de estado 503.
+
+Para activar el modo de mantenimiento, ejecute el comando Artisan `down`:
+
+```sh
+php artisan down
+```
+
+Si desea que la cabecera HTTP `Refresh` se envíe con todas las respuestas del modo de mantenimiento, puede proporcionar la opción `refresh` al invocar el comando `down`. La cabecera `Refresh` indicará al navegador que actualice automáticamente la página tras el número de segundos especificado:
+
+```sh
+php artisan down --refresh=15
+```
+
+También puede proporcionar una opción `retry` al comando `down`, que se establecerá como valor de la cabecera HTTP `Retry-After`, aunque los navegadores suelen ignorar esta cabecera:
+
+```shell
+php artisan down --retry=60
+```
+
+#### Evitar el modo de mantenimiento
+
+Para permitir que el modo de mantenimiento sea evitado usando un token secreto, puedes usar la opción `secret` para especificar un token de evasión del modo de mantenimiento:
+
+```shell
+php artisan down --secret="1630542a-246b-4b66-afa1-dd72a4c43515"
+```
+
+Después de poner la aplicación en modo de mantenimiento, puede navegar a la URL de la aplicación que coincida con este token y Laravel emitirá una cookie de bypass de modo de mantenimiento a su navegador:
+
+```shell
+https://example.com/1630542a-246b-4b66-afa1-dd72a4c43515
+```
+
+Cuando acceda a esta ruta oculta, será redirigido a la ruta `/` de la aplicación. Una vez que la cookie haya sido emitida a su navegador, podrá navegar por la aplicación normalmente como si no estuviera en modo de mantenimiento.
+
+{% hint style="info" %}
+Su secreto de modo de mantenimiento debe consistir normalmente en caracteres alfanuméricos y, opcionalmente, guiones. Debe evitar utilizar caracteres que tengan un significado especial en las URL, como `?`.
+{% endhint %}
+
+#### Vista previa del modo de mantenimiento
+
+Si utilizas el comando `php artisan down` durante el despliegue, tus usuarios pueden encontrarse ocasionalmente con errores si acceden a la aplicación mientras tus dependencias de Composer u otros componentes de la infraestructura se están actualizando. Esto ocurre porque una parte significativa del framework Laravel debe arrancar para determinar que tu aplicación está en modo mantenimiento y renderizar la vista de modo mantenimiento usando el motor de plantillas.
+
+Por esta razón, Laravel te permite pre-renderizar una vista en modo mantenimiento que será devuelta al principio del ciclo de petición. Esta vista se renderiza antes de que ninguna de las dependencias de tu aplicación se haya cargado. Puedes pre-renderizar una plantilla de tu elección usando la opción `render` del comando `down`:
+
+```shell
+php artisan down --render="errors::503"
+```
+
+#### Redireccionamiento de solicitudes en modo de mantenimiento
+
+Mientras esté en modo mantenimiento, Laravel mostrará la vista de modo mantenimiento para todas las URLs de la aplicación a las que el usuario intente acceder. Si lo desea, puede indicar a Laravel que redirija todas las peticiones a una URL específica. Esto puede lograrse utilizando la opción `redirect`. Por ejemplo, es posible que desee redirigir todas las solicitudes a la `/` URI:
+
+```shell
+php artisan down --redirect=/
+```
+
+#### Desactivar el modo de mantenimiento
+
+Para desactivar el modo de mantenimiento, utilice el comando `up`:
+
+```shell
+php artisan up
+```
+
+{% hint style="info" %}
+Puede personalizar la plantilla predeterminada del modo de mantenimiento definiendo su propia plantilla en `resources/views/errors/503.blade.php`.
+{% endhint %}
+
+#### Modo de mantenimiento y colas
+
+Mientras su aplicación esté en modo de mantenimiento, no se gestionarán [trabajos en cola](https://laravel.com/docs/10.x/queues). Los trabajos seguirán gestionándose con normalidad una vez que la aplicación salga del modo de mantenimiento.
+
+#### Alternativas al modo de mantenimiento
+
+Dado que el modo de mantenimiento requiere que su aplicación tenga varios segundos de tiempo de inactividad, considere alternativas como [Laravel Vapor](https://vapor.laravel.com) y [Envoyer](https://envoyer.io) para lograr un despliegue sin tiempo de inactividad con Laravel.
