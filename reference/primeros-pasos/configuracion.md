@@ -174,3 +174,19 @@ Para establecer valores de configuración en tiempo de ejecución, pase un array
 config(['app.timezone' => 'America/Chicago']);
 ```
 
+## Almacenamiento en caché de la configuración
+
+Para aumentar la velocidad de tu aplicación, debes cachear todos tus archivos de configuración en un solo archivo usando el comando `config:cache` de Artisan. Esto combinará todas las opciones de configuración para su aplicación en un solo archivo que puede ser cargado rápidamente por el framework.
+
+Normalmente debería ejecutar el comando `php artisan config:cache` como parte de su proceso de despliegue de producción. El comando no debe ser ejecutado durante el desarrollo local, ya que las opciones de configuración necesitarán ser cambiadas frecuentemente durante el curso del desarrollo de su aplicación.
+
+Una vez que la configuración ha sido almacenada en caché, el archivo `.env` de tu aplicación no será cargado por el framework durante las peticiones o comandos de Artisan; por lo tanto, la función `env` sólo devolverá variables de entorno externas, a nivel de sistema.
+
+Por esta razón, debes asegurarte de que sólo llamas a la función `env` desde dentro de los ficheros de configuración (`config`) de tu aplicación. Puedes ver muchos ejemplos de esto examinando los archivos de configuración por defecto de Laravel.
+
+Se puede acceder a los valores de configuración desde cualquier parte de su aplicación utilizando la función `config` [descrita anteriormente](https://laravel.com/docs/10.x/configuration#accessing-configuration-values).
+
+{% hint style="info" %}
+Si ejecutas el comando `config:cache` durante tu proceso de despliegue, debes asegurarte de que sólo estás llamando a la función `env` desde dentro de tus ficheros de configuración. Una vez que la configuración se ha almacenado en caché, el archivo `.env` no se cargará; por lo tanto, la función `env` sólo devolverá variables de entorno externas, a nivel de sistema.
+{% endhint %}
+
