@@ -10,7 +10,7 @@ Es importante destacar que actualmente este proyecto es llevado adelante por una
 
 Si este contenido te resulta útil y es de valor para ti puedes apoyarme comprandome un cafe a través de:
 
-[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/McAlvaro)
+<a href="https://www.buymeacoffee.com/McAlvaro" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 217px !important;" ></a>
 
 Tus contribuciones nos permitirán continuar con este proyecto.
 
