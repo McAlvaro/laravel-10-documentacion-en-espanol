@@ -157,3 +157,20 @@ Para sobrescribir un archivo de entorno existente, puede proporcionar la opción
 php artisan env:decrypt --force
 ```
 
+## Acceder a los valores de configuración
+
+Puede acceder fácilmente a sus valores de configuración utilizando la función global `config` desde cualquier parte de su aplicación. Puede acceder a los valores de configuración utilizando la sintaxis "dot", que incluye el nombre del archivo y la opción a la que desea acceder. También se puede especificar un valor por defecto, que se devolverá si la opción de configuración no existe:
+
+```php
+$value = config('app.timezone');
+ 
+// Retrieve a default value if the configuration value does not exist...
+$value = config('app.timezone', 'Asia/Seoul');
+```
+
+Para establecer valores de configuración en tiempo de ejecución, pase un array a la función `config`:
+
+```php
+config(['app.timezone' => 'America/Chicago']);
+```
+
