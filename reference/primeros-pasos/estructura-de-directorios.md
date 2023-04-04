@@ -96,3 +96,39 @@ Una variedad de otros directorios serán generados dentro del directorio `app` c
 Muchas de las clases en el directorio `app` pueden ser generadas por Artisan a través de comandos. Para revisar los comandos disponibles, ejecute el comando `php artisan list make` en su terminal.
 {% endhint %}
 
+### El Directorio Broadcasting
+
+El directorio `Broadcasting` contiene todas las clases de canales de difusión para su aplicación. Estas clases se generan usando el comando `make:channel`. Este directorio no existe por defecto, pero se creará para ti cuando crees tu primer canal. Para saber más sobre canales, consulta la documentación sobre [event broadcasting](https://laravel.com/docs/10.x/broadcasting).
+
+### El Directorio Console
+
+El directorio `Console` contiene todos los comandos personalizados de Artisan para su aplicación. Estos comandos pueden ser generados utilizando el comando `make:command`. Este directorio también contiene el kernel de tu consola, que es donde tus comandos personalizados de Artisan son registrados y tus [tareas programadas](https://laravel.com/docs/10.x/scheduling) son definidas.
+
+### El Directorio Events
+
+Este directorio no existe por defecto, pero será creado para usted por los comandos Artisan `event:generate` y `make:event`. El directorio `Events` contiene [clases de eventos](https://laravel.com/docs/10.x/events). Los eventos pueden ser utilizados para alertar a otras partes de tu aplicación de que una determinada acción ha ocurrido, proporcionando una gran flexibilidad y desacoplamiento.
+
+### El Directorio Exceptions
+
+El directorio `Exceptions` contiene el manejador de excepciones de tu aplicación y es también un buen lugar para colocar cualquier excepción lanzada por tu aplicación. Si desea personalizar la forma en que sus excepciones se registran o renderizan, debe modificar la clase `Handler` en este directorio.
+
+### El Directorio Http
+
+El directorio `Http` contiene tus controladores, middleware y peticiones de formulario. Casi toda la lógica para manejar las solicitudes que entran en su aplicación se colocará en este directorio.
+
+### El Directorio Jobs
+
+Este directorio no existe por defecto, pero será creado para usted si ejecuta el comando Artisan `make:job`. El directorio `Jobs` aloja los [trabajos en cola](https://laravel.com/docs/10.x/queues) para su aplicación. Los trabajos pueden ser puestos en cola por su aplicación o ejecutarse sincrónicamente dentro del ciclo de vida de la solicitud actual. Los trabajos que se ejecutan de forma sincrónica durante la petición actual se denominan a veces "comandos", ya que son una implementación del [patrón de comandos](https://en.wikipedia.org/wiki/Command\_pattern).
+
+### El Directorio Listeners
+
+Este directorio no existe por defecto, pero será creado por ti si ejecutas los comandos Artisan `event:generate` o `make:listener`. El directorio `Listeners` contiene las clases que manejan tus [eventos](https://laravel.com/docs/10.x/events). Los listeners de eventos reciben una instancia de evento y ejecutan la lógica en respuesta al evento disparado. Por ejemplo, un evento `UserRegistered` puede ser manejado por un listener `SendWelcomeEmail`.
+
+### El Directorio de Mail
+
+Este directorio no existe por defecto, pero será creado para usted si ejecuta el comando `make:mail` de Artisan. El directorio `Mail` contiene todas sus [clases que representan emails](https://laravel.com/docs/10.x/mail) enviados por su aplicación. Los objetos Mail le permiten encapsular toda la lógica de construcción de un correo electrónico en una única y simple clase que puede ser enviada utilizando el método `Mail::send`.
+
+### El Directorio Models
+
+El directorio `Models` contiene todas tus [clases de modelos](https://laravel.com/docs/10.x/eloquent) Eloquent. El ORM de Eloquent incluido con Laravel proporciona una hermosa y simple implementación de ActiveRecord para trabajar con tu base de datos. Cada tabla de la base de datos tiene su correspondiente "Modelo" que se utiliza para interactuar con esa tabla. Los modelos te permiten consultar los datos de tus tablas, así como insertar nuevos registros en la tabla.
+
