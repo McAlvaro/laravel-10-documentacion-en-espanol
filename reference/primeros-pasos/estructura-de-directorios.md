@@ -70,3 +70,29 @@ El archivo `console.php` es donde puede definir todos sus comandos de consola ba
 
 El archivo `channels.php` es donde puede registrar todos los canales de [difusión de eventos](https://laravel.com/docs/10.x/broadcasting) que su aplicación soporte.
 
+### El directorio de almacenamiento
+
+El directorio `storage` contiene tus logs, plantillas Blade compiladas, sesiones basadas en ficheros, cachés de ficheros y otros ficheros generados por el framework. Este directorio está dividido en los directorios `app`, `framework` y `logs`. El directorio `app` puede ser utilizado para almacenar cualquier archivo generado por tu aplicación. El directorio `framework` se utiliza para almacenar archivos generados por el framework y cachés. Por último, el directorio `logs` contiene los archivos de registro de tu aplicación.
+
+El directorio `storage/app/public` puede utilizarse para almacenar archivos generados por el usuario, como avatares de perfil, que deben ser accesibles públicamente. Debes crear un enlace simbólico en `public/storage` que apunte a este directorio. Puede crear el enlace utilizando el comando `php artisan storage:link` de Artisan.
+
+### El directorio de pruebas
+
+El directorio `tests` contiene tus pruebas automatizadas. Ejemplo [PHPUnit](https://phpunit.de/) pruebas unitarias y pruebas de características se proporcionan fuera de la caja. Cada clase de prueba debe tener como sufijo la palabra `Test`. Puede ejecutar sus pruebas utilizando los comandos `phpunit` o `php vendor/bin/phpunit`. O, si desea una representación más detallada y hermosa de los resultados de sus pruebas, puede ejecutarlas utilizando el comando Artisan `php artisan test`.
+
+### El Directorio de Vendor
+
+El directorio `vendor` contiene sus dependencias [Composer](https://getcomposer.org).
+
+## El Directorio App
+
+La mayor parte de la aplicación se encuentra en el directorio `app`. Por defecto, este directorio tiene el nombre `App` y es autocargado por Composer utilizando el [PSR-4 autoloading standard](https://www.php-fig.org/psr/psr-4/).
+
+El directorio `app` contiene una variedad de directorios adicionales como `Console`, `Http`, y `Providers`. Piensa en los directorios `Console` y `Http` como una API en el núcleo de tu aplicación. Tanto el protocolo HTTP como la CLI son mecanismos para interactuar con tu aplicación, pero en realidad no contienen lógica de aplicación. En otras palabras, son dos formas de emitir comandos a tu aplicación. El directorio `Console` contiene todos tus comandos Artisan, mientras que el directorio `Http` contiene tus controladores, middleware y peticiones.
+
+Una variedad de otros directorios serán generados dentro del directorio `app` cuando utilices los comandos `make` de Artisan para generar clases. Así, por ejemplo, el directorio `app/Jobs` no existirá hasta que ejecutes el comando Artisan `make:job` para generar una clase job.
+
+{% hint style="info" %}
+Muchas de las clases en el directorio `app` pueden ser generadas por Artisan a través de comandos. Para revisar los comandos disponibles, ejecute el comando `php artisan list make` en su terminal.
+{% endhint %}
+
