@@ -132,3 +132,20 @@ Este directorio no existe por defecto, pero será creado para usted si ejecuta e
 
 El directorio `Models` contiene todas tus [clases de modelos](https://laravel.com/docs/10.x/eloquent) Eloquent. El ORM de Eloquent incluido con Laravel proporciona una hermosa y simple implementación de ActiveRecord para trabajar con tu base de datos. Cada tabla de la base de datos tiene su correspondiente "Modelo" que se utiliza para interactuar con esa tabla. Los modelos te permiten consultar los datos de tus tablas, así como insertar nuevos registros en la tabla.
 
+### El directorio Notifications
+
+Este directorio no existe por defecto, pero será creado para usted si ejecuta el comando Artisan `make:notification`. El directorio `Notifications` contiene todas las [notificaciones](https://laravel.com/docs/10.x/notifications) "transaccionales" que son enviadas por tu aplicación, como simples notificaciones sobre eventos que ocurren dentro de tu aplicación. La función de notificación de Laravel abstrae el envío de notificaciones a través de una variedad de controladores como correo electrónico, Slack, SMS, o almacenados en una base de datos.
+
+### El directorio Policies
+
+Este directorio no existe por defecto, pero será creado por usted si ejecuta el comando Artisan `make:policy`. El directorio `Policies` contiene las clases de [políticas de autorización](https://laravel.com/docs/10.x/authorization) para su aplicación. Las políticas son usadas para determinar si un usuario puede realizar una acción dada contra un recurso.
+
+### El Directorio Providers
+
+El directorio `Providers` contiene todos los [proveedores de servicios](https://laravel.com/docs/10.x/providers) para tu aplicación. Los proveedores de servicios arrancan tu aplicación vinculando servicios en el contenedor de servicios, registrando eventos, o realizando cualquier otra tarea para preparar tu aplicación para las peticiones entrantes.
+
+En una aplicación Laravel nueva, este directorio ya contendrá varios proveedores. Eres libre de añadir tus propios proveedores a este directorio según sea necesario.
+
+### El directorio Rules
+
+Este directorio no existe por defecto, pero será creado por usted si ejecuta el comando Artisan `make:rule`. El directorio `Rules` contiene los objetos de reglas de validación personalizados para su aplicación. Las reglas se utilizan para encapsular lógica de validación complicada en un objeto simple. Para mayor información, revisa la [documentación de validación](https://laravel.com/docs/10.x/validation).
