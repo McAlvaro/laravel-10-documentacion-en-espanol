@@ -14,3 +14,8 @@
   * [Frontend](reference/primeros-pasos/frontend.md)
   * [Kits de Inicio](reference/primeros-pasos/kits-de-inicio.md)
   * [Despliegue](reference/primeros-pasos/despliegue.md)
+* [Conceptos de arquitectura](reference/conceptos-arquitectura/README.md)
+  * [Ciclo de Vida de una Solicitud](reference/conceptos-arquitectura/ciclo-de-vida-de-una-solicitud.md)
+  * [Contenedor de Servicio](reference/conceptos-arquitectura/contenedor-de-servicio.md)
+  * [Proveedores de Servicios](reference/conceptos-arquitectura/proveedores-de-servicios.md)
+  * [Facades](reference/conceptos-arquitectura/facades.md)
