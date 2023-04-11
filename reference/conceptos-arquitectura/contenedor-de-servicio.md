@@ -456,3 +456,36 @@ $result = App::call(function (UserRepository $repository) {
 });
 ```
 
+## Eventos en contenedores
+
+El contenedor de servicios lanza un evento cada vez que resuelve un objeto. Puedes escuchar este evento usando el método `resolving`:
+
+```php
+use App\Services\Transistor;
+use Illuminate\Contracts\Foundation\Application;
+ 
+$this->app->resolving(Transistor::class, function (Transistor $transistor, Application $app) {
+    // Called when container resolves objects of type "Transistor"...
+});
+ 
+$this->app->resolving(function (mixed $object, Application $app) {
+    // Called when container resolves object of any type...
+});
+```
+
+## PSR-11
+
+El contenedor de servicios de Laravel implementa la interfaz [PSR-11](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md). Por lo tanto, puedes teclear la interfaz del contenedor PSR-11 para obtener una instancia del contenedor de Laravel:
+
+```php
+use App\Services\Transistor;
+use Psr\Container\ContainerInterface;
+ 
+Route::get('/', function (ContainerInterface $container) {
+    $service = $container->get(Transistor::class);
+ 
+    // ...
+});
+```
+
+Se lanza una excepción si no se puede resolver el identificador dado. La excepción será una instancia de `Psr\Container\NotFoundExceptionInterface` si el identificador nunca se vinculó. Si el identificador se vinculó pero no se pudo resolver, se lanzará una instancia de `PsrContainerContainerExceptionInterface`.
