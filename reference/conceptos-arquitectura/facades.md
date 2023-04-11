@@ -119,3 +119,130 @@ public function test_basic_example(): void
 }
 ```
 
+## Cómo funcionan las Facades
+
+En una aplicación Laravel, una facade es una clase que proporciona acceso a un objeto desde el contenedor. La maquinaria que hace que esto funcione está en la clase `Facade`. Las facades de Laravel, y cualquier facade personalizada que crees, extenderán la clase base `Illuminate\Support\Facades\Facade`.
+
+La clase base `Facade` hace uso del método mágico `__callStatic()` para diferir las llamadas de tu facade a un objeto resuelto desde el contenedor. En el siguiente ejemplo, se realiza una llamada al sistema de caché de Laravel. Echando un vistazo a este código, uno podría asumir que el método estático `get` está siendo llamado en la clase `Cache`:
+
+```php
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
+ 
+class UserController extends Controller
+{
+    /**
+     * Show the profile for the given user.
+     */
+    public function showProfile(string $id): View
+    {
+        $user = Cache::get('user:'.$id);
+ 
+        return view('profile', ['user' => $user]);
+    }
+}
+```
+
+Observe que cerca de la parte superior del archivo estamos "importando" la facade `Cache`. Esta facade sirve como proxy para acceder a la implementación subyacente de la interfaz `Illuminate\Contracts\Cache\Factory`. Cualquier llamada que hagamos usando la fachada será pasada a la instancia subyacente del servicio de caché de Laravel.
+
+Si miramos esa clase `Illuminate\Support\Facades\Cache`, verás que no hay ningún método estático `get`:
+
+```php
+class Cache extends Facade
+{
+    /**
+     * Get the registered name of the component.
+     */
+    protected static function getFacadeAccessor(): string
+    {
+        return 'cache';
+    }
+}
+```
+
+En su lugar, la facade `Cache` extiende la clase base `Facade` y define el método `getFacadeAccessor()`. La función de este método es devolver el nombre de un contenedor de servicios. Cuando un usuario hace referencia a cualquier método estático de la fachada `Cache`, Laravel resuelve el enlace `cache` del [contenedor de servicios](https://laravel.com/docs/10.x/container) y ejecuta el método solicitado (en este caso, `get`) contra ese objeto.
+
+## Facades en tiempo real
+
+Usando facades en tiempo real, puedes tratar cualquier clase de tu aplicación como si fuera una facade. Para ilustrar cómo se puede utilizar esto, vamos a examinar primero un poco de código que no utiliza fachadas en tiempo real. Por ejemplo, supongamos que nuestro modelo `Podcast` tiene un método `publish`. Sin embargo, para publicar el podcast, necesitamos inyectar una instancia `Publisher`:
+
+```php
+<?php
+ 
+namespace App\Models;
+ 
+use App\Contracts\Publisher;
+use Illuminate\Database\Eloquent\Model;
+ 
+class Podcast extends Model
+{
+    /**
+     * Publish the podcast.
+     */
+    public function publish(Publisher $publisher): void
+    {
+        $this->update(['publishing' => now()]);
+ 
+        $publisher->publish($this);
+    }
+}
+```
+
+Inyectar una implementación del publicador en el método nos permite probar fácilmente el método de forma aislada, ya que podemos simular el publicador inyectado. Sin embargo, nos obliga a pasar siempre una instancia del publicador cada vez que llamamos al método `publish`. Usando facade en tiempo real, podemos mantener la misma capacidad de prueba sin tener que pasar explícitamente una instancia de `Publisher`. Para generar una fachada en tiempo real, anteponga al espacio de nombres de la clase importada el prefijo `Facades`:
+
+```php
+<?php
+ 
+namespace App\Models;
+ 
+use Facades\App\Contracts\Publisher;
+use Illuminate\Database\Eloquent\Model;
+ 
+class Podcast extends Model
+{
+    /**
+     * Publish the podcast.
+     */
+    public function publish(): void
+    {
+        $this->update(['publishing' => now()]);
+ 
+        Publisher::publish($this);
+    }
+}
+```
+
+Cuando se utiliza la facade en tiempo real, la implementación del editor se resolverá fuera del contenedor de servicios utilizando la parte de la interfaz o el nombre de la clase que aparece después del prefijo `Facades`. Al realizar pruebas, podemos utilizar los ayudantes de pruebas de fachada incorporados de Laravel para simular esta llamada al método:
+
+```php
+<?php
+ 
+namespace Tests\Feature;
+ 
+use App\Models\Podcast;
+use Facades\App\Contracts\Publisher;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+ 
+class PodcastTest extends TestCase
+{
+    use RefreshDatabase;
+ 
+    /**
+     * A test example.
+     */
+    public function test_podcast_can_be_published(): void
+    {
+        $podcast = Podcast::factory()->create();
+ 
+        Publisher::shouldReceive('publish')->once()->with($podcast);
+ 
+        $podcast->publish();
+    }
+}
+```
