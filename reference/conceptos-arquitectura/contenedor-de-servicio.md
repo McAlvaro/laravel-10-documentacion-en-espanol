@@ -334,3 +334,79 @@ $this->app->extend(Service::class, function (Service $service, Application $app)
 });
 ```
 
+## Resolviendo
+
+### El Método `make`
+
+Puedes utilizar el método `make` para resolver una instancia de clase desde el contenedor. El método `make` acepta el nombre de la clase o interfaz que deseas resolver:
+
+```php
+use App\Services\Transistor;
+ 
+$transistor = $this->app->make(Transistor::class);
+```
+
+Si algunas de las dependencias de tu clase no se pueden resolver a través del contenedor, puedes inyectarlas pasándolas como un array asociativo al método `makeWith`. Por ejemplo, podemos pasar manualmente el argumento del constructor `$id` requerido por el servicio `Transistor`:
+
+```php
+use App\Services\Transistor;
+ 
+$transistor = $this->app->makeWith(Transistor::class, ['id' => 1]);
+```
+
+Si se encuentra fuera de un proveedor de servicios en una ubicación de su código que no tiene acceso a la variable `$app`, puede utilizar la `App` [facade](https://laravel.com/docs/10.x/facades) o la `app` [helper](https://laravel.com/docs/10.x/helpers#method-app) para resolver una instancia de clase del contenedor:
+
+```php
+use App\Services\Transistor;
+use Illuminate\Support\Facades\App;
+ 
+$transistor = App::make(Transistor::class);
+ 
+$transistor = app(Transistor::class);
+```
+
+Si desea que la instancia del contenedor Laravel se inyecte en una clase que está siendo resuelta por el contenedor, puede escribir la clase `Illuminate\Container\Container` en el constructor de su clase:
+
+```php
+use Illuminate\Container\Container;
+ 
+/**
+ * Create a new class instance.
+ */
+public function __construct(
+    protected Container $container
+) {}
+```
+
+### Inyección automática
+
+Alternativamente, y de manera importante, puedes escribir la dependencia en el constructor de una clase que sea resuelta por el contenedor, incluyendo [controllers](https://laravel.com/docs/10.x/controllers), [event listeners](https://laravel.com/docs/10.x/events), [middleware](https://laravel.com/docs/10.x/middleware), y más. Además, puedes escribir dependencias en el método `handle` de [queued jobs](https://laravel.com/docs/10.x/queues). En la práctica, así es como la mayoría de tus objetos deberían ser resueltos por el contenedor.
+
+```php
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use App\Repositories\UserRepository;
+use App\Models\User;
+ 
+class UserController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+ 
+    /**
+     * Show the user with the given ID.
+     */
+    public function show(string $id): User
+    {
+        $user = $this->users->findOrFail($id);
+ 
+        return $user;
+    }
+}
+```
