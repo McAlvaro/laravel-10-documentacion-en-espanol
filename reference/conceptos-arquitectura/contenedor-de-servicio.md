@@ -410,3 +410,49 @@ class UserController extends Controller
     }
 }
 ```
+
+## Invocación e inyección de métodos
+
+A veces es posible que desee invocar un método en una instancia de objeto mientras permite que el contenedor inyecte automáticamente las dependencias de ese método. Por ejemplo, dada la siguiente clase
+
+```php
+<?php
+ 
+namespace App;
+ 
+use App\Repositories\UserRepository;
+ 
+class UserReport
+{
+    /**
+     * Generate a new user report.
+     */
+    public function generate(UserRepository $repository): array
+    {
+        return [
+            // ...
+        ];
+    }
+}
+```
+
+Puede invocar el método `generate` a través del contenedor de la siguiente manera:
+
+```php
+use App\UserReport;
+use Illuminate\Support\Facades\App;
+ 
+$report = App::call([new UserReport, 'generate']);
+```
+
+El método `call` acepta cualquier callable de PHP. El método `call` del contenedor puede usarse incluso para invocar un cierre mientras se inyectan automáticamente sus dependencias:
+
+```php
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\App;
+ 
+$result = App::call(function (UserRepository $repository) {
+    // ...
+});
+```
+
