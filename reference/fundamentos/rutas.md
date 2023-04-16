@@ -102,3 +102,49 @@ Route::permanentRedirect('/here', '/there');
 Cuando se utilizan parámetros de ruta en las rutas de redirección, los siguientes parámetros están reservados por Laravel y no se pueden utilizar: `destination` y `status`.
 {% endhint %}
 
+## Rutas de Vista
+
+Si su ruta sólo necesita devolver una [vista](https://laravel.com/docs/10.x/views), puede utilizar el método `Route::view`. Al igual que el método `redirect`, este método proporciona un atajo simple para que no tengas que definir una ruta o controlador completo. El método `view` acepta un URI como primer argumento y un nombre de vista como segundo argumento. Además, puedes proporcionar un array de datos para pasar a la vista como tercer argumento opcional:
+
+```php
+Route::view('/welcome', 'welcome');
+ 
+Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
+```
+
+{% hint style="info" %}
+Cuando se utilizan parámetros de ruta en rutas de vista, los siguientes parámetros están reservados por Laravel y no se pueden utilizar: `view`, `data`, `status`, y `headers`.
+{% endhint %}
+
+## Lista de rutas
+
+El comando `route:list` de Artisan puede proporcionar fácilmente una visión general de todas las rutas definidas por su aplicación:
+
+```sh
+php artisan route:list
+```
+
+Por defecto, el middleware de ruta que se asigna a cada ruta no se mostrará en la salida `route:list`; sin embargo, puedes ordenar a Laravel que muestre el middleware de ruta añadiendo la opción `-v` al comando:
+
+```sh
+php artisan route:list -v
+```
+
+También puede ordenar a Laravel que sólo muestre las rutas que comienzan con un URI determinado:
+
+```sh
+php artisan route:list --path=api
+```
+
+Además, puedes indicar a Laravel que oculte cualquier ruta definida por paquetes de terceros proporcionando la opción `--except-vendor` al ejecutar el comando `route:list`:
+
+```shell
+php artisan route:list --except-vendor
+```
+
+Del mismo modo, también puedes indicar a Laravel que sólo muestre las rutas definidas por paquetes de terceros proporcionando la opción `--only-vendor` al ejecutar el comando `route:list`:
+
+```sh
+php artisan route:list --only-vendor
+```
+
