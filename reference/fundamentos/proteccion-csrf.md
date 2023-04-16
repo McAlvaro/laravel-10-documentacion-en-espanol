@@ -1,0 +1,2 @@
+# Protección CSRF
+
