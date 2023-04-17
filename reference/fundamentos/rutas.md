@@ -302,3 +302,64 @@ Los nombres de las rutas deben ser siempre únicos.
 #### Generación de URL para rutas con nombre
 
 Una vez que hayas asignado un nombre a una ruta dada, puedes usar el nombre de la ruta cuando generes URLs o redirecciones a través de las funciones de ayuda `route` y `redirect` de Laravel:
+
+```php
+// Generating URLs...
+$url = route('profile');
+ 
+// Generating Redirects...
+return redirect()->route('profile');
+ 
+return to_route('profile');
+```
+
+Si la ruta definida contiene parámetros, puede pasarlos como segundo argumento a la función `route`. Los parámetros dados se insertarán automáticamente en la URL generada en sus posiciones correctas:
+
+```php
+Route::get('/user/{id}/profile', function (string $id) {
+    // ...
+})->name('profile');
+ 
+$url = route('profile', ['id' => 1]);
+```
+
+Si pasa parámetros adicionales en la matriz, esos pares clave/valor se añadirán automáticamente a la cadena de consulta de la URL generada:
+
+```php
+Route::get('/user/{id}/profile', function (string $id) {
+    // ...
+})->name('profile');
+ 
+$url = route('profile', ['id' => 1, 'photos' => 'yes']);
+ 
+// /user/1/profile?photos=yes
+```
+
+{% hint style="info" %}
+A veces, es posible que desee especificar valores predeterminados para los parámetros de la URL, como la configuración regional actual. Para ello, puede utilizar el método [`URL::defaults`](https://laravel.com/docs/10.x/urls#default-values).
+{% endhint %}
+
+#### Inspeccionando la ruta actual
+
+Si desea determinar si la petición actual ha sido enrutada a una ruta con nombre, puede utilizar el método `named` en una instancia de Route. Por ejemplo, puede comprobar el nombre de la ruta actual desde un middleware de ruta:
+
+```php
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+ 
+/**
+ * Handle an incoming request.
+ *
+ * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+ */
+public function handle(Request $request, Closure $next): Response
+{
+    if ($request->route()->named('profile')) {
+        // ...
+    }
+ 
+    return $next($request);
+}
+```
+
