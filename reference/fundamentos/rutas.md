@@ -363,3 +363,78 @@ public function handle(Request $request, Closure $next): Response
 }
 ```
 
+## Grupos de rutas
+
+Los grupos de rutas permiten compartir atributos de ruta, como el middleware, entre un gran número de rutas sin necesidad de definir esos atributos en cada ruta individual.
+
+Los grupos anidados intentan "fusionar" inteligentemente los atributos con su grupo padre. Las condiciones de middleware y `where` se fusionan mientras que los nombres y prefijos se añaden. Los delimitadores de espacios de nombres y las barras oblicuas de los prefijos URI se añaden automáticamente cuando procede.
+
+### Middleware
+
+Para asignar [middleware](https://laravel.com/docs/10.x/middleware) a todas las rutas de un grupo, puede utilizar el método `middleware` antes de definir el grupo. Los middleware se ejecutan en el orden en que aparecen en el array:
+
+```php
+Route::middleware(['first', 'second'])->group(function () {
+    Route::get('/', function () {
+        // Uses first & second middleware...
+    });
+ 
+    Route::get('/user/profile', function () {
+        // Uses first & second middleware...
+    });
+});
+```
+
+### Controladores
+
+Si un grupo de rutas utilizan todas el mismo [controlador](https://laravel.com/docs/10.x/controllers), puede utilizar el método `controller` para definir el controlador común para todas las rutas del grupo. Entonces, cuando defina las rutas, sólo necesitará proporcionar el método del controlador que invocan:
+
+```php
+use App\Http\Controllers\OrderController;
+ 
+Route::controller(OrderController::class)->group(function () {
+    Route::get('/orders/{id}', 'show');
+    Route::post('/orders', 'store');
+});
+```
+
+### Enrutamiento de subdominios
+
+Los grupos de rutas también pueden utilizarse para gestionar el enrutamiento de subdominios. A los subdominios se les pueden asignar parámetros de ruta igual que a los URI de ruta, lo que permite capturar una parte del subdominio para utilizarla en la ruta o el controlador. El subdominio puede especificarse llamando al método `domain` antes de definir el grupo:
+
+```php
+Route::domain('{account}.example.com')->group(function () {
+    Route::get('user/{id}', function (string $account, string $id) {
+        // ...
+    });
+});
+```
+
+{% hint style="info" %}
+Para asegurarse de que sus rutas de subdominio son accesibles, debe registrar las rutas de subdominio antes de registrar las rutas de dominio raíz. Esto evitará que las rutas de dominio raíz sobrescriban las rutas de subdominio que tengan la misma ruta URI.
+{% endhint %}
+
+### Prefijos de rutas
+
+El método `prefix` se puede utilizar para prefijar cada ruta del grupo con un URI determinado. Por ejemplo, es posible que desee prefijar todos los URI de ruta dentro del grupo con `admin`:
+
+```php
+Route::prefix('admin')->group(function () {
+    Route::get('/users', function () {
+        // Matches The "/admin/users" URL
+    });
+});
+```
+
+### Prefijos de nombre de ruta
+
+El método `name` se puede utilizar para prefijar cada nombre de ruta en el grupo con una cadena dada. Por ejemplo, puede prefijar los nombres de todas las rutas del grupo con `admin`. La cadena dada se antepone al nombre de la ruta exactamente como se especifica, por lo que nos aseguraremos de proporcionar el carácter `.` al final del prefijo:
+
+```php
+Route::name('admin.')->group(function () {
+    Route::get('/users', function () {
+        // Route assigned name "admin.users"...
+    })->name('users');
+});
+```
+
