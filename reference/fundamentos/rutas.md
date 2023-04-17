@@ -276,3 +276,29 @@ Route::get('/search/{search}', function (string $search) {
 Las barras diagonales codificadas sólo se admiten dentro del último segmento de ruta.
 {% endhint %}
 
+## Rutas con nombre
+
+Las rutas con nombre permiten generar cómodamente URL o redirecciones para rutas específicas. Puede especificar un nombre para una ruta encadenando el método `name` en la definición de la ruta:
+
+```php
+Route::get('/user/profile', function () {
+    // ...
+})->name('profile');
+```
+
+También puede especificar nombres de ruta para las acciones del controlador:
+
+```php
+Route::get(
+    '/user/profile',
+    [UserProfileController::class, 'show']
+)->name('profile');
+```
+
+{% hint style="info" %}
+Los nombres de las rutas deben ser siempre únicos.
+{% endhint %}
+
+#### Generación de URL para rutas con nombre
+
+Una vez que hayas asignado un nombre a una ruta dada, puedes usar el nombre de la ruta cuando generes URLs o redirecciones a través de las funciones de ayuda `route` y `redirect` de Laravel:
