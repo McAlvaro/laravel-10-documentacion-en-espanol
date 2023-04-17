@@ -438,3 +438,135 @@ Route::name('admin.')->group(function () {
 });
 ```
 
+## Vinculación del modelo de ruta (Route Model Binding)
+
+Cuando se inyecta un ID de modelo a una ruta o acción de controlador, a menudo se consulta la base de datos para recuperar el modelo que corresponde a ese ID. Laravel route model binding proporciona una forma conveniente de inyectar automáticamente las instancias del modelo directamente en tus rutas. Por ejemplo, en lugar de inyectar el ID de un usuario, puedes inyectar toda la instancia del modelo `User` que coincida con el ID dado.
+
+### Vinculación implícita
+
+Laravel resuelve automáticamente los modelos Eloquent definidos en rutas o acciones de controlador cuyos nombres de variables de tipo coinciden con un nombre de segmento de ruta. Por ejemplo:
+
+```php
+use App\Models\User;
+ 
+Route::get('/users/{user}', function (User $user) {
+    return $user->email;
+});
+```
+
+Dado que la variable `$user` es del tipo `App\Models\User` del modelo Eloquent y el nombre de la variable coincide con el segmento URI `{user}`, Laravel inyectará automáticamente la instancia del modelo que tenga un ID que coincida con el valor correspondiente del URI de la petición. Si no se encuentra una instancia de modelo coincidente en la base de datos, se generará automáticamente una respuesta HTTP 404.
+
+Por supuesto, la vinculación implícita también es posible cuando se utilizan métodos de controlador. De nuevo, observe que el segmento URI `{user}` coincide con la variable `$user` del controlador, que contiene una sugerencia de tipo `App\Models\User`:
+
+```php
+use App\Http\Controllers\UserController;
+use App\Models\User;
+ 
+// Route definition...
+Route::get('/users/{user}', [UserController::class, 'show']);
+ 
+// Controller method definition...
+public function show(User $user)
+{
+    return view('user.profile', ['user' => $user]);
+}
+```
+
+#### Modelos suaves eliminados (Soft Deleted Models)
+
+Normalmente, la vinculación implícita de modelos no recuperará modelos que hayan sido [soft deleted](https://laravel.com/docs/10.x/eloquent#soft-deleting). Sin embargo, puede ordenar al enlace implícito que recupere estos modelos encadenando el método `withTrashed` en la definición de su ruta:
+
+```php
+use App\Models\User;
+ 
+Route::get('/users/{user}', function (User $user) {
+    return $user->email;
+})->withTrashed();
+```
+
+#### Personalización de la clave
+
+A veces puede que desee resolver modelos Eloquent utilizando una columna distinta de `id`. Para ello, puede especificar la columna en la definición del parámetro de ruta:
+
+```php
+use App\Models\Post;
+ 
+Route::get('/posts/{post:slug}', function (Post $post) {
+    return $post;
+});
+```
+
+Si deseas que el enlace del modelo utilice siempre una columna de la base de datos distinta de `id` al recuperar una clase de modelo determinada, puedes anular el método `getRouteKeyName` del modelo de Eloquent:
+
+```php
+/**
+ * Get the route key for the model.
+ */
+public function getRouteKeyName(): string
+{
+    return 'slug';
+}
+```
+
+#### Claves personalizadas y ámbito
+
+Cuando se vinculan implícitamente varios modelos Eloquent en una única definición de ruta, es posible que desee delimitar el alcance del segundo modelo Eloquent para que sea hijo del modelo Eloquent anterior. Por ejemplo, considere esta definición de ruta que recupera una entrada de blog por slug para un usuario específico:
+
+```php
+use App\Models\Post;
+use App\Models\User;
+ 
+Route::get('/users/{user}/posts/{post:slug}', function (User $user, Post $post) {
+    return $post;
+});
+```
+
+Cuando se utiliza un enlace implícito con clave personalizada como parámetro de ruta anidado, Laravel delimitará automáticamente la consulta para recuperar el modelo anidado por su padre utilizando convenciones para adivinar el nombre de la relación en el padre. En este caso, se asumirá que el modelo `User` tiene una relación llamada `posts` (la forma plural del nombre del parámetro de ruta) que se puede utilizar para recuperar el modelo `Post`.
+
+Si lo deseas, puedes indicar a Laravel que haga scope de los bindings "hijos" incluso cuando no se proporcione una clave personalizada. Para ello, puede invocar el método `scopeBindings` al definir su ruta:
+
+```php
+use App\Models\Post;
+use App\Models\User;
+ 
+Route::get('/users/{user}/posts/{post}', function (User $user, Post $post) {
+    return $post;
+})->scopeBindings();
+```
+
+También puede indicar a todo un grupo de definiciones de ruta que utilicen enlaces de ámbito:
+
+```php
+Route::scopeBindings()->group(function () {
+    Route::get('/users/{user}/posts/{post}', function (User $user, Post $post) {
+        return $post;
+    });
+});
+```
+
+Del mismo modo, puedes indicar explícitamente a Laravel que no haga scope de los bindings invocando el método `withoutScopedBindings`:
+
+```php
+Route::get('/users/{user}/posts/{post:slug}', function (User $user, Post $post) {
+    return $post;
+})->withoutScopedBindings();
+```
+
+#### Personalización del comportamiento del modelo ausente
+
+Normalmente, se generará una respuesta HTTP 404 si no se encuentra un modelo vinculado implícitamente. Sin embargo, puede personalizar este comportamiento llamando al método `missing` cuando defina su ruta. El método `missing` acepta un cierre que será invocado si no se encuentra un modelo vinculado implícitamente:
+
+```php
+use App\Http\Controllers\LocationsController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+ 
+Route::get('/locations/{location:slug}', [LocationsController::class, 'show'])
+        ->name('locations.view')
+        ->missing(function (Request $request) {
+            return Redirect::route('locations.index');
+        });
+```
+
+
+
