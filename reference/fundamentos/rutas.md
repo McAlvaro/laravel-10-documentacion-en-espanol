@@ -148,3 +148,131 @@ Del mismo modo, también puedes indicar a Laravel que sólo muestre las rutas de
 php artisan route:list --only-vendor
 ```
 
+## Parámetros de ruta
+
+### Parámetros Requeridos
+
+A veces necesitará capturar segmentos del URI dentro de su ruta. Por ejemplo, puede que necesite capturar el ID de un usuario de la URL. Puede hacerlo definiendo parámetros de ruta:
+
+```php
+Route::get('/user/{id}', function (string $id) {
+    return 'User '.$id;
+});
+```
+
+Puede definir tantos parámetros de ruta como requiera su ruta:
+
+```php
+Route::get('/posts/{post}/comments/{comment}', function (string $postId, string $commentId) {
+    // ...
+});
+```
+
+Los parámetros de ruta van siempre entre llaves `{}` y deben estar formados por caracteres alfabéticos. Los guiones bajos (`_`) también son aceptables en los nombres de parámetros de ruta. Los parámetros de ruta se inyectan en las retrollamadas/los controladores de ruta en función de su orden: los nombres de los argumentos de las retrollamadas/los controladores de ruta no importan.
+
+#### Parámetros e inyección de dependencias
+
+Si tu ruta tiene dependencias que quieres que el contenedor de servicios de Laravel inyecte automáticamente en el callback de tu ruta, debes listar los parámetros de tu ruta después de tus dependencias:
+
+```php
+use Illuminate\Http\Request;
+ 
+Route::get('/user/{id}', function (Request $request, string $id) {
+    return 'User '.$id;
+});
+```
+
+### Parámetros opcionales
+
+En ocasiones puede ser necesario especificar un parámetro de ruta que no siempre está presente en el URI. Puede hacerlo colocando una marca `?` después del nombre del parámetro. Asegúrese de dar a la variable correspondiente de la ruta un valor por defecto:
+
+```php
+Route::get('/user/{name?}', function (string $name = null) {
+    return $name;
+});
+ 
+Route::get('/user/{name?}', function (string $name = 'John') {
+    return $name;
+});
+```
+
+### Restricciones con expresiones regulares
+
+Puede restringir el formato de los parámetros de ruta utilizando el método `where` en una instancia de ruta. El método `where` acepta el nombre del parámetro y una expresión regular que define cómo se debe restringir el parámetro:
+
+```php
+Route::get('/user/{name}', function (string $name) {
+    // ...
+})->where('name', '[A-Za-z]+');
+ 
+Route::get('/user/{id}', function (string $id) {
+    // ...
+})->where('id', '[0-9]+');
+ 
+Route::get('/user/{id}/{name}', function (string $id, string $name) {
+    // ...
+})->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
+```
+
+Para mayor comodidad, algunos patrones de expresiones regulares de uso común tienen métodos de ayuda que le permiten añadir rápidamente restricciones de patrones a sus rutas:
+
+```php
+Route::get('/user/{id}/{name}', function (string $id, string $name) {
+    // ...
+})->whereNumber('id')->whereAlpha('name');
+ 
+Route::get('/user/{name}', function (string $name) {
+    // ...
+})->whereAlphaNumeric('name');
+ 
+Route::get('/user/{id}', function (string $id) {
+    // ...
+})->whereUuid('id');
+ 
+Route::get('/user/{id}', function (string $id) {
+    //
+})->whereUlid('id');
+ 
+Route::get('/category/{category}', function (string $category) {
+    // ...
+})->whereIn('category', ['movie', 'song', 'painting']);
+```
+
+Si la solicitud entrante no coincide con las restricciones del patrón de ruta, se devolverá una respuesta HTTP 404.
+
+#### Restricciones globales
+
+Si desea que un parámetro de ruta esté siempre limitado por una expresión regular dada, puede utilizar el método `pattern`. Debe definir estos patrones en el método `boot` de su clase `App\Providers\RouteServiceProvider`:
+
+```php
+/**
+ * Define your route model bindings, pattern filters, etc.
+ */
+public function boot(): void
+{
+    Route::pattern('id', '[0-9]+');
+}
+```
+
+Una vez definido el patrón, se aplica automáticamente a todas las rutas que utilicen ese nombre de parámetro:
+
+```php
+Route::get('/user/{id}', function (string $id) {
+    // Only executed if {id} is numeric...
+});
+```
+
+#### Slashes codificados
+
+El componente de enrutamiento de Laravel permite que todos los caracteres excepto `/` estén presentes en los valores de los parámetros de ruta. Debe permitir explícitamente que `/` forme parte de su marcador de posición utilizando una expresión regular de condición `where`:
+
+```php
+Route::get('/search/{search}', function (string $search) {
+    return $search;
+})->where('search', '.*');
+```
+
+{% hint style="info" %}
+Las barras diagonales codificadas sólo se admiten dentro del último segmento de ruta.
+{% endhint %}
+
