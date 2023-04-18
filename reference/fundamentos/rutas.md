@@ -568,5 +568,126 @@ Route::get('/locations/{location:slug}', [LocationsController::class, 'show'])
         });
 ```
 
+### Vinculación Enum implícita
 
+PHP 8.1 introdujo soporte para [Enums](https://www.php.net/manual/en/language.enumerations.backed.php). Para complementar esta característica, Laravel te permite teclear un [string-backed Enum](https://www.php.net/manual/en/language.enumerations.backed.php) en tu definición de ruta y Laravel sólo invocará la ruta si ese segmento de ruta corresponde a un valor Enum válido. En caso contrario, se devolverá automáticamente una respuesta HTTP 404. Por ejemplo, dado el siguiente Enum:
 
+```php
+<?php
+ 
+namespace App\Enums;
+ 
+enum Category: string
+{
+    case Fruits = 'fruits';
+    case People = 'people';
+}
+```
+
+Puedes definir una ruta que sólo será invocada si el segmento de ruta `{category}` es `fruits` o `people`. De lo contrario, Laravel devolverá una respuesta HTTP 404:
+
+```php
+use App\Enums\Category;
+use Illuminate\Support\Facades\Route;
+ 
+Route::get('/categories/{category}', function (Category $category) {
+    return $category->value;
+});
+```
+
+### Vinculación explícita
+
+No es necesario utilizar la resolución de modelos implícita y basada en convenciones de Laravel para utilizar la vinculación de modelos. También puede definir explícitamente cómo los parámetros de ruta se corresponden con los modelos. Para registrar una vinculación explícita, utiliza el método `model` del enrutador para especificar la clase de un parámetro determinado. Debes definir tus enlaces explícitos al principio del método `boot` de tu clase `RouteServiceProvider`:
+
+```php
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
+ 
+/**
+ * Define your route model bindings, pattern filters, etc.
+ */
+public function boot(): void
+{
+    Route::model('user', User::class);
+ 
+    // ...
+}
+```
+
+A continuación, defina una ruta que contenga un parámetro `{user}`:
+
+```php
+use App\Models\User;
+ 
+Route::get('/users/{user}', function (User $user) {
+    // ...
+});
+```
+
+Dado que hemos vinculado todos los parámetros `{user}` al modelo `App\Models\User`, una instancia de esa clase será inyectada en la ruta. Así, por ejemplo, una solicitud a `users/1` inyectará la instancia `User` de la base de datos que tiene un ID de `1`.
+
+Si no se encuentra una instancia de modelo coincidente en la base de datos, se generará automáticamente una respuesta HTTP 404.
+
+#### Personalización de la lógica de resolución
+
+Si desea definir su propia lógica de resolución de enlace de modelo, puede utilizar el método `Route::bind`. El cierre que pases al método `bind` recibirá el valor del segmento URI y debería devolver la instancia de la clase que debería ser inyectada en la ruta. De nuevo, esta personalización debería tener lugar en el método `boot` del `RouteServiceProvider` de tu aplicación:
+
+```php
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
+ 
+/**
+ * Define your route model bindings, pattern filters, etc.
+ */
+public function boot(): void
+{
+    Route::bind('user', function (string $value) {
+        return User::where('name', $value)->firstOrFail();
+    });
+ 
+    // ...
+}
+```
+
+Alternativamente, puedes anular el método `resolveRouteBinding` en tu modelo Eloquent. Este método recibirá el valor del segmento URI y devolverá la instancia de la clase que debe inyectarse en la ruta:
+
+```php
+/**
+ * Retrieve the model for a bound value.
+ *
+ * @param  mixed  $value
+ * @param  string|null  $field
+ * @return \Illuminate\Database\Eloquent\Model|null
+ */
+public function resolveRouteBinding($value, $field = null)
+{
+    return $this->where('name', $value)->firstOrFail();
+}
+```
+
+Si una ruta utiliza implicit binding scoping, se utilizará el método `resolveChildRouteBinding` para resolver el enlace hijo del modelo padre:
+
+```php
+/**
+ * Retrieve the child model for a bound value.
+ *
+ * @param  string  $childType
+ * @param  mixed  $value
+ * @param  string|null  $field
+ * @return \Illuminate\Database\Eloquent\Model|null
+ */
+public function resolveChildRouteBinding($childType, $value, $field)
+{
+    return parent::resolveChildRouteBinding($childType, $value, $field);
+}
+```
+
+## Rutas fallback
+
+Usando el método `Route::fallback`, puede definir una ruta que se ejecutará cuando ninguna otra ruta coincida con la petición entrante. Normalmente, las peticiones no gestionadas mostrarán automáticamente una página "404" a través del gestor de excepciones de tu aplicación. Sin embargo, dado que normalmente definirías la ruta `fallback` dentro de tu archivo `routes/web.php`, todo el middleware en el grupo de middleware `web` se aplicará a la ruta. Eres libre de añadir middleware adicional a esta ruta según sea necesario:
+
+```php
+Route::fallback(function () {
+    // ...
+});
+```
