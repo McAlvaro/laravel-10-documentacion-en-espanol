@@ -691,3 +691,67 @@ Route::fallback(function () {
     // ...
 });
 ```
+
+{% hint style="info" %}
+La ruta alternativa debe ser siempre la última ruta registrada por su aplicación.
+{% endhint %}
+
+## Limite de rango
+
+### Definición de los limitadores de rango
+
+Laravel incluye potentes y personalizables servicios de limitación de tasa que puedes utilizar para restringir la cantidad de tráfico de una ruta o grupo de rutas determinado. Para empezar, debes definir las configuraciones del limitador de tasa que satisfagan las necesidades de tu aplicación. Típicamente, esto debería hacerse dentro del método `configureRateLimiting` de la clase `App\Providers\RouteServiceProvider` de su aplicación, que ya incluye una definición de limitador de tasa que se aplica a las rutas en el archivo `routes/api.php` de su aplicación:
+
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+ 
+/**
+ * Configure the rate limiters for the application.
+ */
+protected function configureRateLimiting(): void
+{
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
+}
+```
+
+Los limitadores de tráfico se definen utilizando el método `for` de la facade `RateLimiter`. El método `for` acepta un nombre de limitador de tasa y un closure que devuelve la configuración de límite que debería aplicarse a las rutas asignadas al limitador de tráfico. La configuración de límites son instancias de la clase `Illuminate\Cache\RateLimiting\Limit`. Esta clase contiene útiles métodos "constructores" para que pueda definir rápidamente su límite. El nombre del limitador de tráfico puede ser cualquier cadena que desee:
+
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+ 
+/**
+ * Configure the rate limiters for the application.
+ */
+protected function configureRateLimiting(): void
+{
+    RateLimiter::for('global', function (Request $request) {
+        return Limit::perMinute(1000);
+    });
+}
+```
+
+Si la petición entrante excede el límite de tráfico especificado, Laravel devolverá automáticamente una respuesta con un código de estado HTTP 429. Si desea definir su propia respuesta que debe ser devuelto por un límite de velocidad, puede utilizar el método `response`:
+
+```php
+RateLimiter::for('global', function (Request $request) {
+    return Limit::perMinute(1000)->response(function (Request $request, array $headers) {
+        return response('Custom response...', 429, $headers);
+    });
+});
+```
+
+Dado que los callbacks del limitador de tráfico reciben la instancia de la petición HTTP entrante, puede construir el límite de tráfico apropiado dinámicamente basándose en la petición entrante o en el usuario autenticado:
+
+```php
+RateLimiter::for('uploads', function (Request $request) {
+    return $request->user()->vipCustomer()
+                ? Limit::none()
+                : Limit::perMinute(100);
+});
+```
