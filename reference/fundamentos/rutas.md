@@ -755,3 +755,120 @@ RateLimiter::for('uploads', function (Request $request) {
                 : Limit::perMinute(100);
 });
 ```
+
+#### Segmentación de límites de tráfico
+
+A veces es posible que desee segmentar los límites de velocidad por algún valor arbitrario. Por ejemplo, puede que desee permitir a los usuarios acceder a una ruta dada 100 veces por minuto por dirección IP. Para ello, puede utilizar el método `by` cuando construya su límite de velocidad:
+
+```php
+RateLimiter::for('uploads', function (Request $request) {
+    return $request->user()->vipCustomer()
+                ? Limit::none()
+                : Limit::perMinute(100)->by($request->ip());
+});
+```
+
+Para ilustrar esta función con otro ejemplo, podemos limitar el acceso a la ruta a 100 veces por minuto por ID de usuario autenticado o a 10 veces por minuto por dirección IP para los invitados:
+
+```php
+RateLimiter::for('uploads', function (Request $request) {
+    return $request->user()
+                ? Limit::perMinute(100)->by($request->user()->id)
+                : Limit::perMinute(10)->by($request->ip());
+});
+```
+
+#### Múltiples límites de tráfico
+
+Si es necesario, puede devolver una matriz de límites de tráfico para una configuración de limitador de tráfico determinada. Cada limitador de tráfico será evaluado para la ruta basándose en el orden en que están colocados dentro del array:
+
+```php
+RateLimiter::for('login', function (Request $request) {
+    return [
+        Limit::perMinute(500),
+        Limit::perMinute(3)->by($request->input('email')),
+    ];
+});
+```
+
+### Conexión de limitadores de tráfico a rutas
+
+Los limitadores de tráfico pueden asignarse a rutas o grupos de rutas utilizando el [middleware `throttle`](https://laravel.com/docs/10.x/middleware). El middleware de aceleración acepta el nombre del limitador de tráfico que desea asignar a la ruta:
+
+```php
+Route::middleware(['throttle:uploads'])->group(function () {
+    Route::post('/audio', function () {
+        // ...
+    });
+ 
+    Route::post('/video', function () {
+        // ...
+    });
+});
+```
+
+#### Limitación con Redis
+
+Normalmente, el middleware `throttle` se asigna a la clase `Illuminate\Routing\Middleware\ThrottleRequests`. Esta asignación se define en el núcleo HTTP de tu aplicación (`App\Http\Kernel`). Sin embargo, si está utilizando Redis como controlador de caché de su aplicación, es posible que desee cambiar esta asignación para utilizar la clase `Illuminate\Routing\Middleware\ThrottleRequestsWithRedis`. Esta clase es más eficiente en la gestión de la limitación de velocidad utilizando Redis:
+
+```
+'throttle' => \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
+```
+
+## Suplantación del método de formulario
+
+Los formularios HTML no soportan las acciones `PUT`, `PATCH` o `DELETE`. Por tanto, cuando definas rutas `PUT`, `PATCH`, o `DELETE` que sean llamadas desde un formulario HTML, necesitarás añadir un campo oculto `_method` al formulario. El valor enviado con el campo `_method` se utilizará como método de petición HTTP:
+
+```atom
+<form action="/example" method="POST">
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+</form>
+```
+
+Por comodidad, puede utilizar la directiva `@method` [Blade](https://laravel.com/docs/10.x/blade) para generar el campo de entrada `_method`:
+
+```atom
+<form action="/example" method="POST">
+    @method('PUT')
+    @csrf
+</form>
+```
+
+## Accediendo a la ruta actual
+
+Puede utilizar los métodos `current`, `currentRouteName` y `currentRouteAction` de la fachada `Route` para acceder a la información sobre la ruta que gestiona la solicitud entrante:
+
+```php
+use Illuminate\Support\Facades\Route;
+ 
+$route = Route::current(); // Illuminate\Routing\Route
+$name = Route::currentRouteName(); // string
+$action = Route::currentRouteAction(); // string
+```
+
+Puede consultar la documentación de la API tanto de la [clase subyacente de la fachada Route](https://laravel.com/api/10.x/Illuminate/Routing/Router.html) como de la [instancia Route](https://laravel.com/api/10.x/Illuminate/Routing/Route.html) para revisar todos los métodos disponibles en las clases router y route.
+
+## Intercambio de Recursos de Origen Cruzado (CORS)
+
+Laravel puede responder automáticamente a las peticiones HTTP CORS `OPTIONS` con los valores que configures. Todos los ajustes CORS pueden ser configurados en el archivo de configuración `config/cors.php` de tu aplicación. Las peticiones `OPTIONS` serán gestionadas automáticamente por el [middleware `HandleCors`](https://laravel.com/docs/10.x/middleware) que está incluido por defecto en tu pila global de middleware. Tu middleware global está localizado en el núcleo HTTP de tu aplicación (`App\Http\Kernel`).
+
+{% hint style="info" %}
+Para más información sobre CORS y las cabeceras CORS, consulte la [Documentación web de MDN sobre CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The\_HTTP\_response\_headers).
+{% endhint %}
+
+## Caché de rutas
+
+Cuando despliegues tu aplicación en producción, deberías aprovechar la caché de rutas de Laravel. El uso de la caché de rutas disminuirá drásticamente la cantidad de tiempo que se tarda en registrar todas las rutas de tu aplicación. Para generar una caché de rutas, ejecuta el comando Artisan `route:cache`:
+
+```sh
+php artisan route:cache
+```
+
+Después de ejecutar este comando, su archivo de rutas en caché se cargará en cada petición. Recuerda, si añades nuevas rutas necesitarás generar una nueva caché de rutas. Por ello, sólo deberías ejecutar el comando `route:cache` durante el despliegue de tu proyecto.
+
+Puedes usar el comando `route:clear` para borrar la caché de rutas:
+
+```sh
+php artisan route:clear
+```
