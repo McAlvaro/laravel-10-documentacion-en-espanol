@@ -254,3 +254,95 @@ protected $middlewarePriority = [
 ];
 ```
 
+## Parámetros de middlewares
+
+Los middleware también pueden recibir parámetros adicionales. Por ejemplo, si tu aplicación necesita verificar que el usuario autenticado tiene un "rol" determinado antes de realizar una acción determinada, podrías crear un middleware `EnsureUserHasRole` que reciba un nombre de rol como argumento adicional.
+
+Los parámetros adicionales del middleware se pasarán al middleware después del argumento `$next`:
+
+```php
+<?php
+ 
+namespace App\Http\Middleware;
+ 
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+ 
+class EnsureUserHasRole
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        if (! $request->user()->hasRole($role)) {
+            // Redirect...
+        }
+ 
+        return $next($request);
+    }
+ 
+}
+```
+
+Los parámetros del middleware pueden especificarse al definir la ruta separando el nombre del middleware y los parámetros con un `:`. Los parámetros múltiples deben estar delimitados por comas:
+
+```php
+Route::put('/post/{id}', function (string $id) {
+    // ...
+})->middleware('role:editor');
+```
+
+## Middleware terminable
+
+A veces un middleware puede necesitar hacer algún trabajo después de que la respuesta HTTP haya sido enviada al navegador. Si defines un método `terminate` en tu middleware y tu servidor web está usando FastCGI, el método `terminate` será llamado automáticamente después de que la respuesta sea enviada al navegador:
+
+```php
+<?php
+ 
+namespace Illuminate\Session\Middleware;
+ 
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+ 
+class TerminatingMiddleware
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        return $next($request);
+    }
+ 
+    /**
+     * Handle tasks after the response has been sent to the browser.
+     */
+    public function terminate(Request $request, Response $response): void
+    {
+        // ...
+    }
+}
+```
+
+El método `terminate` debe recibir tanto la petición como la respuesta. Una vez que hayas definido un middleware terminable, debes añadirlo a la lista de rutas o middleware global en el archivo `app/Http/Kernel.php`.
+
+Al llamar al método `terminate` en tu middleware, Laravel resolverá una nueva instancia del middleware desde el [service container](https://laravel.com/docs/10.x/container). Si deseas utilizar la misma instancia de middleware cuando los métodos `handle` y `terminate` son llamados, registra el middleware con el contenedor utilizando el método `singleton` del contenedor. Normalmente esto debería hacerse en el método `register` de tu `AppServiceProvider`:
+
+```php
+use App\Http\Middleware\TerminatingMiddleware;
+ 
+/**
+ * Register any application services.
+ */
+public function register(): void
+{
+    $this->app->singleton(TerminatingMiddleware::class);
+}
+```
