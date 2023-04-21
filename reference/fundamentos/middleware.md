@@ -99,3 +99,158 @@ class AfterMiddleware
 }
 ```
 
+## Registrando un Middleware
+
+### Middleware global
+
+Si quieres que un middleware se ejecute durante cada petición HTTP a tu aplicación, lista la clase del middleware en la propiedad `$middleware` de tu clase `app/Http/Kernel.php`.
+
+### Asignación de middleware a rutas
+
+Si desea asignar middleware a rutas específicas, puede invocar el método `middleware` al definir la ruta:
+
+```php
+use App\Http\Middleware\Authenticate;
+ 
+Route::get('/profile', function () {
+    // ...
+})->middleware(Authenticate::class);
+```
+
+Puedes asignar múltiples middleware a la ruta pasando un array de nombres de middleware al método `middleware`:
+
+```php
+Route::get('/', function () {
+    // ...
+})->middleware([First::class, Second::class]);
+```
+
+Para mayor comodidad, puedes asignar alias al middleware en el fichero `app/Http/Kernel.php` de tu aplicación. Por defecto, la propiedad `$middlewareAliases` de esta clase contiene entradas para el middleware incluido con Laravel. Puedes añadir tu propio middleware a esta lista y asignarle un alias de tu elección:
+
+```php
+// Within App\Http\Kernel class...
+ 
+protected $middlewareAliases = [
+    'auth' => \App\Http\Middleware\Authenticate::class,
+    'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+    'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+    'can' => \Illuminate\Auth\Middleware\Authorize::class,
+    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+    'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+    'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+];
+```
+
+Una vez que se ha definido el alias de middleware en el kernel HTTP, se puede utilizar el alias al asignar middleware a las rutas:
+
+```php
+Route::get('/profile', function () {
+    // ...
+})->middleware('auth');
+```
+
+#### Excluyendo el middleware
+
+Al asignar middleware a un grupo de rutas, puede que ocasionalmente necesites evitar que el middleware se aplique a una ruta individual dentro del grupo. Para ello puede utilizar el método `withoutMiddleware`:
+
+```php
+use App\Http\Middleware\EnsureTokenIsValid;
+ 
+Route::middleware([EnsureTokenIsValid::class])->group(function () {
+    Route::get('/', function () {
+        // ...
+    });
+ 
+    Route::get('/profile', function () {
+        // ...
+    })->withoutMiddleware([EnsureTokenIsValid::class]);
+});
+```
+
+También puede excluir un determinado conjunto de middleware de todo un [grupo](https://laravel.com/docs/10.x/routing#route-groups) de definiciones de ruta:
+
+```php
+use App\Http\Middleware\EnsureTokenIsValid;
+ 
+Route::withoutMiddleware([EnsureTokenIsValid::class])->group(function () {
+    Route::get('/profile', function () {
+        // ...
+    });
+});
+```
+
+El método `withoutMiddleware` sólo puede eliminar middleware de ruta y no se aplica a global middleware.
+
+### Grupos de middleware
+
+A veces es posible que desee agrupar varios middleware bajo una sola clave para que sea más fácil asignarlos a las rutas. Puedes conseguirlo usando la propiedad `$middlewareGroups` de tu kernel HTTP.
+
+Laravel incluye grupos de middleware predefinidos `web` y `api` que contienen middleware común que puedes querer aplicar a tus rutas web y API. Recuerde, estos grupos de middleware se aplican automáticamente por su aplicación `App\Providers\RouteServiceProvider` proveedor de servicios a las rutas dentro de su correspondiente `web` y `api` archivos de ruta:
+
+```php
+/**
+ * The application's route middleware groups.
+ *
+ * @var array
+ */
+protected $middlewareGroups = [
+    'web' => [
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+ 
+    'api' => [
+        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+];
+```
+
+Los grupos de middleware pueden asignarse a rutas y acciones de controlador utilizando la misma sintaxis que los middleware individuales. Una vez más, los grupos de middleware hacen que sea más conveniente asignar muchos middleware a una ruta a la vez:
+
+```php
+Route::get('/', function () {
+    // ...
+})->middleware('web');
+ 
+Route::middleware(['web'])->group(function () {
+    // ...
+});
+```
+
+{% hint style="info" %}
+Los grupos de middleware `web` y `api` se aplican automáticamente a los archivos correspondientes `routes/web.php` y `routes/api.php` de tu aplicación mediante el `App\Providers\RouteServiceProvider`.
+{% endhint %}
+
+### Clasificación de middleware
+
+En raras ocasiones, puedes necesitar que tu middleware se ejecute en un orden específico pero no tener control sobre su orden cuando son asignados a la ruta. En este caso, puede especificar la prioridad de su middleware usando la propiedad `$middlewarePriority` de su archivo `app/Http/Kernel.php`. Esta propiedad puede no existir en su kernel HTTP por defecto. Si no existe, puede copiar su definición por defecto a continuación:
+
+```php
+/**
+ * The priority-sorted list of middleware.
+ *
+ * This forces non-global middleware to always be in the given order.
+ *
+ * @var string[]
+ */
+protected $middlewarePriority = [
+    \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+    \Illuminate\Routing\Middleware\ThrottleRequests::class,
+    \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
+    \Illuminate\Contracts\Session\Middleware\AuthenticatesSessions::class,
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    \Illuminate\Auth\Middleware\Authorize::class,
+];
+```
+
