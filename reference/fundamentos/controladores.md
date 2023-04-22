@@ -236,3 +236,38 @@ Route::resource('photos', PhotoController::class)->except([
 
 #### Rutas de recursos para API
 
+Al declarar rutas de recursos que serán consumidas por APIs, normalmente querrás excluir las rutas que presentan plantillas HTML como `create` y `edit`. Para mayor comodidad, puede utilizar el método `apiResource` para excluir automáticamente estas dos rutas:
+
+```php
+use App\Http\Controllers\PhotoController;
+ 
+Route::apiResource('photos', PhotoController::class);
+```
+
+Puede registrar muchos controladores de recursos de API a la vez pasando una matriz al método `apiResources`:
+
+```php
+use App\Http\Controllers\PhotoController;
+use App\Http\Controllers\PostController;
+ 
+Route::apiResources([
+    'photos' => PhotoController::class,
+    'posts' => PostController::class,
+]);
+```
+
+Para generar rápidamente un controlador de recursos API que no incluya los métodos `create` o `edit`, utilice el modificador `--api` al ejecutar el comando `make:controller`:
+
+```sh
+php artisan make:controller PhotoController --api
+```
+
+### Recursos anidados
+
+A veces puede ser necesario definir rutas a un recurso anidado. Por ejemplo, un recurso foto puede tener múltiples comentarios que pueden adjuntarse a la foto. Para anidar los controladores de recursos, puede utilizar la notación "punto" en su declaración de ruta:
+
+```
+use App\Http\Controllers\PhotoCommentController;
+ 
+Route::resource('photos.comments', PhotoCommentController::class);
+```
