@@ -467,3 +467,87 @@ Por supuesto, los recursos API singleton también pueden ser `creables`, lo que 
 ```php
 Route::apiSingleton('photos.thumbnail', ProfileController::class)->creatable();
 ```
+
+## Inyección de dependencia y controladores
+
+#### Inyección al constructor
+
+El [contenedor de servicios de Laravel](https://laravel.com/docs/10.x/container) se utiliza para resolver todos los controladores de Laravel. Como resultado, usted es capaz de tipo de sugerencia de cualquier dependencia de su controlador puede necesitar en su constructor. Las dependencias declaradas se resolverán automáticamente y se inyectarán en la instancia del controlador:
+
+```php
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use App\Repositories\UserRepository;
+ 
+class UserController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+}
+```
+
+#### Inyección de Métodos
+
+Además de la inyección de constructores, también puedes inyectar dependencias de tipo en los métodos de tu controlador. Un caso de uso común para la inyección de métodos es inyectar la instancia `Illuminate\Http\Request` en los métodos de tu controlador:
+
+```php
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+ 
+class UserController extends Controller
+{
+    /**
+     * Store a new user.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $name = $request->name;
+ 
+        // Store the user...
+ 
+        return redirect('/users');
+    }
+}
+```
+
+Si el método del controlador también espera la entrada de un parámetro de ruta, enumere los argumentos de la ruta después de las otras dependencias. Por ejemplo, si la ruta se define así:
+
+```php
+use App\Http\Controllers\UserController;
+ 
+Route::put('/user/{id}', [UserController::class, 'update']);
+```
+
+Aún puede escribir la sugerencia `Illuminate\Http\Request` y acceder a su parámetro `id` definiendo su método controlador de la siguiente manera:
+
+```php
+<?php
+ 
+namespace App\Http\Controllers;
+ 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+ 
+class UserController extends Controller
+{
+    /**
+     * Update the given user.
+     */
+    public function update(Request $request, string $id): RedirectResponse
+    {
+        // Update the user...
+ 
+        return redirect('/users');
+    }
+}
+```
