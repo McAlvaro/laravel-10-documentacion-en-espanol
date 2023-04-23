@@ -448,3 +448,8 @@ En este ejemplo, se registrarán las siguientes rutas. Como puede ver, también 
 | PUT/PATCH | `/photos/{photo}/thumbnail`        | update  | photos.thumbnail.update  |
 | DELETE    | `/photos/{photo}/thumbnail`        | destroy | photos.thumbnail.destroy |
 
+Si quieres que Laravel registre la ruta `DELETE` para un recurso singleton pero no registra las rutas de creación o almacenamiento, puedes utilizar el método `destroyable`:
+
+```php
+Route::singleton(...)->destroyable();
+```
