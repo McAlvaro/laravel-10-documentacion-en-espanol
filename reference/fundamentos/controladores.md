@@ -266,8 +266,42 @@ php artisan make:controller PhotoController --api
 
 A veces puede ser necesario definir rutas a un recurso anidado. Por ejemplo, un recurso foto puede tener múltiples comentarios que pueden adjuntarse a la foto. Para anidar los controladores de recursos, puede utilizar la notación "punto" en su declaración de ruta:
 
-```
+```php
 use App\Http\Controllers\PhotoCommentController;
  
 Route::resource('photos.comments', PhotoCommentController::class);
 ```
+
+Esta ruta registrará un recurso anidado al que se podrá acceder con URIs como las siguientes:
+
+```php
+/photos/{photo}/comments/{comment}
+```
+
+#### Determinación del alcance de los recursos anidados
+
+La característica [implicit model binding](https://laravel.com/docs/10.x/routing#implicit-model-binding-scoping) de Laravel puede determinar automáticamente el alcance de los enlaces anidados de forma que se confirme que el modelo hijo resuelto pertenece al modelo padre. Utilizando el método `scoped` al definir tu recurso anidado, puedes habilitar el alcance automático así como indicar a Laravel por qué campo debe recuperarse el recurso hijo. Para obtener más información sobre cómo lograr esto, consulte la documentación sobre scoping resource routes.
+
+#### Nidificación superficial
+
+A menudo, no es del todo necesario tener tanto el ID padre como el ID hijo dentro de un URI, ya que el ID hijo ya es un identificador único. Cuando utilice identificadores únicos como claves primarias autoincrementadas para identificar sus modelos en segmentos URI, puede optar por utilizar el "anidamiento superficial":
+
+```php
+use App\Http\Controllers\CommentController;
+ 
+Route::resource('photos.comments', CommentController::class)->shallow();
+```
+
+Esta definición de ruta definirá las siguientes rutas:
+
+| Verb      | URI                               | Action  | Route Name             |
+| --------- | --------------------------------- | ------- | ---------------------- |
+| GET       | `/photos/{photo}/comments`        | index   | photos.comments.index  |
+| GET       | `/photos/{photo}/comments/create` | create  | photos.comments.create |
+| POST      | `/photos/{photo}/comments`        | store   | photos.comments.store  |
+| GET       | `/comments/{comment}`             | show    | comments.show          |
+| GET       | `/comments/{comment}/edit`        | edit    | comments.edit          |
+| PUT/PATCH | `/comments/{comment}`             | update  | comments.update        |
+| DELETE    | `/comments/{comment}`             | destroy | comments.destroy       |
+
+\
