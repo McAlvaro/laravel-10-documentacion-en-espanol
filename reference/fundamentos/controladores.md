@@ -428,3 +428,23 @@ En este ejemplo, el recurso `photos` recibiría todas las rutas de recursos est�
 | GET       | `/photos/{photo}/thumbnail`      | show   | photos.thumbnail.show   |
 | GET       | `/photos/{photo}/thumbnail/edit` | edit   | photos.thumbnail.edit   |
 | PUT/PATCH | `/photos/{photo}/thumbnail`      | update | photos.thumbnail.update |
+
+#### Recursos creables Singleton
+
+Ocasionalmente, puede que quieras definir rutas de creación y almacenamiento para un recurso singleton. Para ello, puede invocar el método `creatable` al registrar la ruta del recurso singleton:
+
+```php
+Route::singleton('photos.thumbnail', ThumbnailController::class)->creatable();
+```
+
+En este ejemplo, se registrarán las siguientes rutas. Como puede ver, también se registrará una ruta `DELETE` para los recursos singleton creables:
+
+| Verb      | URI                                | Action  | Route Name               |
+| --------- | ---------------------------------- | ------- | ------------------------ |
+| GET       | `/photos/{photo}/thumbnail/create` | create  | photos.thumbnail.create  |
+| POST      | `/photos/{photo}/thumbnail`        | store   | photos.thumbnail.store   |
+| GET       | `/photos/{photo}/thumbnail`        | show    | photos.thumbnail.show    |
+| GET       | `/photos/{photo}/thumbnail/edit`   | edit    | photos.thumbnail.edit    |
+| PUT/PATCH | `/photos/{photo}/thumbnail`        | update  | photos.thumbnail.update  |
+| DELETE    | `/photos/{photo}/thumbnail`        | destroy | photos.thumbnail.destroy |
+
