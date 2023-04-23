@@ -453,3 +453,17 @@ Si quieres que Laravel registre la ruta `DELETE` para un recurso singleton pero 
 ```php
 Route::singleton(...)->destroyable();
 ```
+
+#### Recursos API Singleton
+
+El método `apiSingleton` puede utilizarse para registrar un recurso singleton que será manipulado a través de una API, haciendo innecesarias las rutas `create` y `edit`:
+
+```php
+Route::apiSingleton('profile', ProfileController::class);
+```
+
+Por supuesto, los recursos API singleton también pueden ser `creables`, lo que registrará rutas `store` y `destroy` para el recurso:
+
+```php
+Route::apiSingleton('photos.thumbnail', ProfileController::class)->creatable();
+```
