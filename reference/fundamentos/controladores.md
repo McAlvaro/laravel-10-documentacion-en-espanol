@@ -304,4 +304,121 @@ Esta definición de ruta definirá las siguientes rutas:
 | PUT/PATCH | `/comments/{comment}`             | update  | comments.update        |
 | DELETE    | `/comments/{comment}`             | destroy | comments.destroy       |
 
-\
+### Nombrando rutas de recursos
+
+Por defecto, todas las acciones del controlador de recursos tienen un nombre de ruta; sin embargo, puede anular estos nombres pasando una matriz `names` con los nombres de ruta que desee:
+
+```php
+use App\Http\Controllers\PhotoController;
+ 
+Route::resource('photos', PhotoController::class)->names([
+    'create' => 'photos.build'
+]);
+```
+
+### Nombrando parámetros de ruta de recursos
+
+Por defecto, `Route::resource` creará los parámetros de ruta para tus rutas de recursos basándose en la versión "singularizada" del nombre del recurso. Puedes anular esto fácilmente para cada recurso utilizando el método `parameters`. El array pasado al método `parameters` debe ser un array asociativo de nombres de recursos y nombres de parámetros:
+
+```php
+use App\Http\Controllers\AdminUserController;
+ 
+Route::resource('users', AdminUserController::class)->parameters([
+    'users' => 'admin_user'
+]);
+```
+
+El ejemplo anterior genera la siguiente URI para la ruta `show` del recurso:
+
+```php
+/users/{admin_user}
+```
+
+### Alcance de las rutas de recursos
+
+La característica de Laravel [scoped implicit model binding](https://laravel.com/docs/10.x/routing#implicit-model-binding-scoping) puede determinar automáticamente el alcance de los enlaces anidados de forma que se confirme que el modelo hijo resuelto pertenece al modelo padre. Usando el método `scoped` al definir tu recurso anidado, puedes habilitar el alcance automático así como indicar a Laravel por qué campo debe ser recuperado el recurso hijo:
+
+```php
+use App\Http\Controllers\PhotoCommentController;
+ 
+Route::resource('photos.comments', PhotoCommentController::class)->scoped([
+    'comment' => 'slug',
+]);
+```
+
+Esta ruta registrará un recurso anidado de alcance al que se podrá acceder con URIs como las siguientes:
+
+```php
+/photos/{photo}/comments/{comment:slug}
+```
+
+Cuando se utiliza un enlace implícito con clave personalizada como parámetro de ruta anidado, Laravel automáticamente delimitará la consulta para recuperar el modelo anidado por su padre utilizando convenciones para adivinar el nombre de la relación en el padre. En este caso, se asumirá que el modelo `Photo` tiene una relación llamada `comments` (el plural del nombre del parámetro de ruta) que se puede utilizar para recuperar el modelo `Comment`.
+
+### Localización de recursos URI
+
+Por defecto, `Route::resource` creará URIs de recursos usando verbos en inglés y reglas de plural. Si necesitas localizar los verbos de acción `create` y `edit`, puedes usar el método `Route::resourceVerbs`. Esto puede hacerse al principio del método `boot` dentro de la aplicación `App\Providers\RouteServiceProvider`:
+
+```php
+/**
+ * Define your route model bindings, pattern filters, etc.
+ */
+public function boot(): void
+{
+    Route::resourceVerbs([
+        'create' => 'crear',
+        'edit' => 'editar',
+    ]);
+ 
+    // ...
+}
+```
+
+El pluralizador de Laravel soporta [varios idiomas diferentes que puedes configurar en función de tus necesidades](https://laravel.com/docs/10.x/localization#pluralization-language). Una vez personalizados los verbos y el lenguaje de pluralización, un registro de ruta de recursos como `Route::resource('publicacion', PublicacionController::class)` producirá las siguientes URIs:
+
+```php
+/publicacion/crear
+ 
+/publicacion/{publicaciones}/editar
+```
+
+### Complemento de los controladores de recursos
+
+Si necesitas añadir rutas adicionales a un controlador de recursos más allá del conjunto predeterminado de rutas de recursos, debes definir esas rutas antes de tu llamada al método `Route::resource`; de lo contrario, las rutas definidas por el método `resource` pueden tener prioridad involuntariamente sobre tus rutas suplementarias:
+
+```php
+use App\Http\Controller\PhotoController;
+ 
+Route::get('/photos/popular', [PhotoController::class, 'popular']);
+Route::resource('photos', PhotoController::class);
+```
+
+{% hint style="info" %}
+Recuerde mantener sus controladores centrados. Si necesita métodos fuera del conjunto típico de acciones de recursos, considere la posibilidad de dividir el controlador en dos controladores más pequeños.
+{% endhint %}
+
+### Controladores de recursos Singleton
+
+A veces, su aplicación tendrá recursos que sólo pueden tener una única instancia. Por ejemplo, el "perfil" de un usuario puede editarse o actualizarse, pero un usuario no puede tener más de un "perfil". Del mismo modo, una imagen puede tener una única "miniatura". Estos recursos se denominan "recursos singleton", lo que significa que sólo puede existir una instancia del recurso. En estos casos, puede registrar un controlador de recursos "singleton":
+
+```php
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+ 
+Route::singleton('profile', ProfileController::class);
+```
+
+La definición de recurso singleton anterior registrará las siguientes rutas. Como puede ver, las rutas de "creación" no se registran para los recursos singleton, y las rutas registradas no aceptan un identificador ya que sólo puede existir una instancia del recurso:
+
+| Verb      | URI             | Action | Route Name     |
+| --------- | --------------- | ------ | -------------- |
+| GET       | `/profile`      | show   | profile.show   |
+| GET       | `/profile/edit` | edit   | profile.edit   |
+| PUT/PATCH | `/profile`      | update | profile.update |
+
+Los recursos Singleton también pueden anidarse dentro de un recurso estándar:
+
+```php
+Route::singleton('photos.thumbnail', ThumbnailController::class);
+```
+
+En este ejemplo, el recurso `photos` recibiría todas las rutas de recursos estándar; sin embargo, el recurso `thumbnail` sería un recurso singleton con las siguientes rutas:
