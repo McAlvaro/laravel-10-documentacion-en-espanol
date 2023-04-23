@@ -422,3 +422,9 @@ Route::singleton('photos.thumbnail', ThumbnailController::class);
 ```
 
 En este ejemplo, el recurso `photos` recibiría todas las rutas de recursos estándar; sin embargo, el recurso `thumbnail` sería un recurso singleton con las siguientes rutas:
+
+| Verb      | URI                              | Action | Route Name              |
+| --------- | -------------------------------- | ------ | ----------------------- |
+| GET       | `/photos/{photo}/thumbnail`      | show   | photos.thumbnail.show   |
+| GET       | `/photos/{photo}/thumbnail/edit` | edit   | photos.thumbnail.edit   |
+| PUT/PATCH | `/photos/{photo}/thumbnail`      | update | photos.thumbnail.update |
