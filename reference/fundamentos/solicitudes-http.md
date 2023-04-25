@@ -466,3 +466,66 @@ $request->whenMissing('name', function (array $input) {
     // The "name" value is present...
 });
 ```
+
+### Uniendo entradas adicionales
+
+A veces puede que necesite combinar manualmente datos adicionales con los datos de entrada existentes en la solicitud. Para ello, puede utilizar el método `merge`. Si una determinada clave de entrada ya existe en la solicitud, será sobrescrita por los datos proporcionados al método `merge`:
+
+```php
+$request->merge(['votes' => 0]);
+```
+
+El método `mergeIfMissing` puede utilizarse para combinar la entrada en la solicitud si las claves correspondientes no existen ya en los datos de entrada de la solicitud:
+
+```php
+$request->mergeIfMissing(['votes' => 0]);
+```
+
+### Entrada anterior
+
+Laravel le permite mantener la entrada de una solicitud durante la siguiente solicitud. Esta característica es particularmente útil para repoblar formularios después de detectar errores de validación. Sin embargo, si estás usando las [características de validación incluidas de Laravel](https://laravel.com/docs/10.x/validation), es posible que no necesites usar manualmente estos métodos de parpadeo de entrada de sesión directamente, ya que algunas de las facilidades de validación incorporadas de Laravel los llamarán automáticamente.
+
+#### Entrada flash a la sesión
+
+El método `flash` de la clase `Illuminate\Http\Request` flasheará la entrada actual a la [sesión](https://laravel.com/docs/10.x/session) para que esté disponible durante la próxima petición del usuario a la aplicación:
+
+```php
+$request->flash();
+```
+
+También puedes usar los métodos `flashOnly` y `flashExcept` para flashear un subconjunto de los datos de la petición a la sesión. Estos métodos son útiles para mantener información sensible como contraseñas fuera de la sesión:
+
+```php
+$request->flashOnly(['username', 'email']);
+ 
+$request->flashExcept('password');
+```
+
+#### Entrada flash y luego redirección
+
+Dado que a menudo querrá flashear la entrada en la sesión y luego redirigir a la página anterior, puede encadenar fácilmente el flasheo de la entrada en una redirección utilizando el método `withInput`:
+
+```php
+return redirect('form')->withInput();
+ 
+return redirect()->route('user.create')->withInput();
+ 
+return redirect('form')->withInput(
+    $request->except('password')
+);
+```
+
+#### Recuperar entradas antiguas
+
+Para recuperar la entrada flash de la petición anterior, invoque el método `old` en una instancia de `Illuminate\Http\Request`. El método `old` extraerá los datos de entrada flasheados previamente de la [sesión](https://laravel.com/docs/10.x/session):
+
+```php
+$username = $request->old('username');
+```
+
+Laravel también proporciona un helper global `old`. Si estás mostrando entradas antiguas dentro de una [plantilla Blade](https://laravel.com/docs/10.x/blade), es más conveniente usar el helper `old` para repoblar el formulario. Si no existe ninguna entrada antigua para el campo dado, se devolverá `null`:
+
+```atom
+<input type="text" name="username" value="{{ old('username') }}">
+```
+
