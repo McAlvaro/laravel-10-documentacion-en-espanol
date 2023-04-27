@@ -137,3 +137,37 @@ Si aún no tiene una instancia de la respuesta saliente, puede utilizar el méto
 Cookie::expire('name');
 ```
 
+### Cookies y encriptación
+
+Por defecto, todas las cookies generadas por Laravel son encriptadas y firmadas para que no puedan ser modificadas o leídas por el cliente. Si quieres deshabilitar el cifrado para un subconjunto de cookies generadas por tu aplicación, puedes usar la propiedad `$except` del middleware `App\Http\Middleware\EncryptCookies`, que se encuentra en el directorio `app/Http/Middleware`:
+
+```php
+/**
+ * The names of the cookies that should not be encrypted.
+ *
+ * @var array
+ */
+protected $except = [
+    'cookie_name',
+];
+```
+
+## Redirecciones
+
+Las respuestas de redirección son instancias de la clase `Illuminate\Http\RedirectResponse`, y contienen los encabezados adecuados necesarios para redirigir al usuario a otra URL. Hay varias maneras de generar una instancia `RedirectResponse`. El método más sencillo es utilizar el helper global `redirect`:
+
+```php
+Route::get('/dashboard', function () {
+    return redirect('home/dashboard');
+});
+```
+
+A veces es posible que desee redirigir al usuario a su ubicación anterior, como cuando un formulario enviado no es válido. Puede hacerlo utilizando la función global de ayuda `back`. Dado que esta función utiliza la [sesión](https://laravel.com/docs/10.x/session), asegúrese de que la ruta que llama a la función `back` utiliza el grupo de middleware `web`:
+
+```php
+Route::post('/user/profile', function () {
+    // Validate the request...
+ 
+    return back()->withInput();
+});
+```
