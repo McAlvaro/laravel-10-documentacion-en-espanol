@@ -529,3 +529,113 @@ Laravel también proporciona un helper global `old`. Si estás mostrando entrada
 <input type="text" name="username" value="{{ old('username') }}">
 ```
 
+### Cookies
+
+#### Recuperación de cookies de solicitudes
+
+Todas las cookies creadas por el framework Laravel están encriptadas y firmadas con un código de autenticación, lo que significa que se considerarán inválidas si han sido modificadas por el cliente. Para recuperar un valor de cookie de la solicitud, utilice el método `cookie` en una instancia `Illuminate\Http\Request`:
+
+```php
+$value = $request->cookie('name');
+```
+
+## Recorte y normalización de entrada
+
+Por defecto, Laravel incluye el middleware `App\Http\Middleware\TrimStrings` y `Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull` en la pila de middleware global de tu aplicación. Estos middleware son listados en la pila global de middleware por la clase `App\Http\Kernel`. Estos middlewares recortarán automáticamente todos los campos de cadena entrantes en la petición, así como convertirán cualquier campo de cadena vacío a `null`. Esto le permite no tener que preocuparse por estos problemas de normalización en sus rutas y controladores.
+
+#### Desactivación de la normalización de entradas
+
+Si desea desactivar este comportamiento para todas las solicitudes, puede eliminar los dos middleware de la pila de middleware de su aplicación eliminándolos de la propiedad `$middleware` de su clase `App\Http\Kernel`.
+
+Si desea desactivar el recorte de cadenas y la conversión de cadenas vacías para un subconjunto de peticiones a su aplicación, puede utilizar el método `skipWhen` ofrecido por ambos middleware. Este método acepta un closure que debe devolver `true` o `false` para indicar si la normalización de la entrada debe ser omitida. Típicamente, el método `skipWhen` debería ser invocado en el método `boot` del `AppServiceProvider` de tu aplicación.
+
+```php
+use App\Http\Middleware\TrimStrings;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
+ 
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    TrimStrings::skipWhen(function (Request $request) {
+        return $request->is('admin/*');
+    });
+ 
+    ConvertEmptyStringsToNull::skipWhen(function (Request $request) {
+        // ...
+    });
+}
+```
+
+## Archivos
+
+### Recuperar archivos cargados
+
+Puede recuperar archivos cargados desde una instancia `Illuminate\Http\Request` usando el método `file` o usando propiedades dinámicas. El método `file` devuelve una instancia de la clase `Illuminate\Http\UploadedFile`, que extiende la clase PHP `SplFileInfo` y proporciona una variedad de métodos para interactuar con el archivo:
+
+```php
+$file = $request->file('photo');
+ 
+$file = $request->photo;
+```
+
+Puede determinar si un archivo está presente en la petición utilizando el método `hasFile`:
+
+```php
+if ($request->hasFile('photo')) {
+    // ...
+}
+```
+
+#### Validación de cargas correctas
+
+Además de comprobar si el archivo está presente, puede verificar que no ha habido problemas al subir el archivo mediante el método `isValid`:
+
+```php
+if ($request->file('photo')->isValid()) {
+    // ...
+}
+```
+
+#### Rutas y extensiones de archivos
+
+La clase `UploadedFile` también contiene métodos para acceder a la ruta completa del archivo y a su extensión. El método `extension` intentará adivinar la extensión del archivo basándose en su contenido. Esta extensión puede ser diferente de la extensión proporcionada por el cliente:
+
+```php
+$path = $request->photo->path();
+ 
+$extension = $request->photo->extension();
+```
+
+#### Otros métodos de archivo
+
+Existen otros métodos disponibles para las instancias de `UploadedFile`. Consulta la [documentación de la API de la clase](https://github.com/symfony/symfony/blob/6.0/src/Symfony/Component/HttpFoundation/File/UploadedFile.php) para obtener más información sobre estos métodos.
+
+### Almacenamiento de archivos cargados
+
+Para almacenar un archivo subido, normalmente utilizará uno de sus [sistemas de archivos configurados](https://laravel.com/docs/10.x/filesystem). La clase `UploadedFile` tiene un método `store` que moverá un archivo subido a uno de sus discos, que puede ser una ubicación en su sistema de archivos local o una ubicación de almacenamiento en la nube como Amazon S3.
+
+El método `store` acepta la ruta donde debe almacenarse el archivo en relación con el directorio raíz configurado del sistema de archivos. Esta ruta no debe contener un nombre de archivo, ya que se generará automáticamente un ID único que servirá como nombre de archivo.
+
+El método `store` también acepta un segundo argumento opcional para el nombre del disco que debe utilizarse para almacenar el archivo. El método devolverá la ruta del archivo relativa a la raíz del disco:
+
+```php
+$path = $request->photo->store('images');
+ 
+$path = $request->photo->store('images', 's3');
+```
+
+Si no desea que se genere automáticamente un nombre de archivo, puede utilizar el método `storeAs`, que acepta como argumentos la ruta, el nombre de archivo y el nombre del disco:
+
+```php
+$path = $request->photo->storeAs('images', 'filename.jpg');
+ 
+$path = $request->photo->storeAs('images', 'filename.jpg', 's3');
+```
+
+{% hint style="info" %}
+Para más información sobre el almacenamiento de archivos en Laravel, consulta la [documentación sobre almacenamiento de archivos completa](https://laravel.com/docs/10.x/filesystem).
+{% endhint %}
+
