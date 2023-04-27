@@ -639,3 +639,79 @@ $path = $request->photo->storeAs('images', 'filename.jpg', 's3');
 Para más información sobre el almacenamiento de archivos en Laravel, consulta la [documentación sobre almacenamiento de archivos completa](https://laravel.com/docs/10.x/filesystem).
 {% endhint %}
 
+## Configuración de proxies de confianza
+
+Al ejecutar sus aplicaciones detrás de un balanceador de carga que termina TLS / certificados SSL, puede notar que su aplicación a veces no genera enlaces HTTPS cuando se utiliza el `url` helper. Típicamente esto se debe a que su aplicación está siendo reenviado el tráfico de su equilibrador de carga en el puerto 80 y no sabe que debe generar enlaces seguros.
+
+Para resolver esto, puedes utilizar el middleware `App\Http\Middleware\TrustProxies` que se incluye en tu aplicación Laravel, que te permite personalizar rápidamente los balanceadores de carga o proxies en los que debe confiar tu aplicación. Tus proxies de confianza deben ser listados como un array en la propiedad `$proxies` de este middleware. Además de configurar los proxies de confianza, puedes configurar los proxies `$headers` en los que se debe confiar:
+
+```php
+<?php
+ 
+namespace App\Http\Middleware;
+ 
+use Illuminate\Http\Middleware\TrustProxies as Middleware;
+use Illuminate\Http\Request;
+ 
+class TrustProxies extends Middleware
+{
+    /**
+     * The trusted proxies for this application.
+     *
+     * @var string|array
+     */
+    protected $proxies = [
+        '192.168.1.1',
+        '192.168.1.2',
+    ];
+ 
+    /**
+     * The headers that should be used to detect proxies.
+     *
+     * @var int
+     */
+    protected $headers = Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO;
+}
+```
+
+{% hint style="info" %}
+Si estás utilizando AWS Elastic Load Balancing, el valor de `$headers` debe ser `Request::HEADER_X_FORWARDED_AWS_ELB`. Para obtener más información sobre las constantes que se pueden utilizar en la propiedad `$headers`, consulta la documentación de Symfony sobre [trusting proxies](https://symfony.com/doc/current/deployment/proxies.html).
+{% endhint %}
+
+#### Confiar en todos los servidores proxy
+
+Si utilizas Amazon AWS u otro proveedor de balanceadores de carga "en la nube", puede que no conozcas las direcciones IP de tus balanceadores reales. En este caso, puede utilizar `*` para confiar en todos los proxies:
+
+```php
+/**
+ * The trusted proxies for this application.
+ *
+ * @var string|array
+ */
+protected $proxies = '*';
+```
+
+## Configuración de hosts de confianza
+
+Por defecto, Laravel responderá a todas las peticiones que reciba independientemente del contenido del header `Host` de la petición HTTP. Además, el valor del header `Host` será usado cuando se generen URLs absolutas a tu aplicación durante una petición web.
+
+Normalmente, deberías configurar tu servidor web, como Nginx o Apache, para que sólo envíe peticiones a tu aplicación que coincidan con un determinado nombre de host. Sin embargo, si no tienes la capacidad de personalizar tu servidor web directamente y necesitas instruir a Laravel para que sólo responda a ciertos nombres de host, puedes hacerlo habilitando el middleware `App\Http\Middleware\TrustHosts` para tu aplicación.
+
+El middleware `TrustHosts` ya está incluido en la pila `$middleware` de tu aplicación; sin embargo, debes descomentarla para que se active. Dentro del método `hosts` de este middleware, puedes especificar los nombres de host a los que tu aplicación debe responder. Las peticiones entrantes con otras cabeceras de valor `Host` serán rechazadas:
+
+```php
+/**
+ * Get the host patterns that should be trusted.
+ *
+ * @return array<int, string>
+ */
+public function hosts(): array
+{
+    return [
+        'laravel.test',
+        $this->allSubdomainsOfApplicationUrl(),
+    ];
+}
+```
+
+El método de ayuda `allSubdomainsOfApplicationUrl` devuelve una expresión regular que coincide con todos los subdominios del valor de configuración `app.url` de la aplicación. Este método de ayuda proporciona una forma práctica de permitir todos los subdominios de la aplicación cuando se crea una aplicación que utiliza subdominios comodín.
