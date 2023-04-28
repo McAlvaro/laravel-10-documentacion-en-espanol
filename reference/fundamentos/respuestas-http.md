@@ -171,3 +171,202 @@ Route::post('/user/profile', function () {
     return back()->withInput();
 });
 ```
+
+### Redirección a rutas con nombre
+
+Cuando se llama al helper `redirect` sin parámetros, se devuelve una instancia de `Illuminate\Routing\Redirector`, lo que permite llamar a cualquier método en la instancia `Redirector`. Por ejemplo, para generar un `RedirectResponse` a una ruta con nombre, puede utilizar el método `route`:
+
+```php
+return redirect()->route('login');
+```
+
+Si su ruta tiene parámetros, puede pasarlos como segundo argumento al método `route`:
+
+```php
+// For a route with the following URI: /profile/{id}
+ 
+return redirect()->route('profile', ['id' => 1]);
+```
+
+#### Rellenar parámetros mediante modelos Eloquent
+
+Si está redirigiendo a una ruta con un parámetro "ID" que se está rellenando desde un modelo de Eloquent, puede pasar el propio modelo. El ID se extraerá automáticamente:
+
+```php
+// For a route with the following URI: /profile/{id}
+ 
+return redirect()->route('profile', [$user]);
+```
+
+Si desea personalizar el valor que se coloca en el parámetro de ruta, puede especificar la columna en la definición del parámetro de ruta (`/profile/{id:slug}`) o puede anular el método `getRouteKey` en su modelo Eloquent:
+
+```php
+/**
+ * Get the value of the model's route key.
+ */
+public function getRouteKey(): mixed
+{
+    return $this->slug;
+}
+```
+
+### Redirección a acciones del controlador
+
+También puede generar redirecciones a [acciones del controlador](https://laravel.com/docs/10.x/controllers). Para ello, pase el controlador y el nombre de la acción al método `action`:
+
+```php
+use App\Http\Controllers\UserController;
+ 
+return redirect()->action([UserController::class, 'index']);
+```
+
+Si la ruta de tu controlador requiere parámetros, puedes pasarlos como segundo argumento al método `action`:
+
+```php
+return redirect()->action(
+    [UserController::class, 'profile'], ['id' => 1]
+);
+```
+
+### Redirección a dominios externos
+
+A veces puede necesitar redirigir a un dominio fuera de su aplicación. Puedes hacerlo llamando al método `away`, que crea un `RedirectResponse` sin ninguna codificación de URL adicional, validación o verificación:
+
+```php
+return redirect()->away('https://www.google.com');
+```
+
+### Redirección con datos de sesión flasheados
+
+Redirigir a una nueva URL y [flashear datos a la sesión](https://laravel.com/docs/10.x/session#flash-data) suelen hacerse al mismo tiempo. Normalmente, esto se hace después de realizar con éxito una acción cuando se flashea un mensaje de éxito a la sesión. Para mayor comodidad, puede crear una instancia `RedirectResponse` y flashear datos a la sesión en una única cadena de métodos fluida:
+
+```php
+Route::post('/user/profile', function () {
+    // ...
+ 
+    return redirect('dashboard')->with('status', 'Profile updated!');
+});
+```
+
+Después de redirigir al usuario, puede mostrar el mensaje flasheado de la [sesión](https://laravel.com/docs/10.x/session). Por ejemplo, utilizando [sintaxis de Blade](https://laravel.com/docs/10.x/blade):
+
+```atom
+@if (session('status'))
+    <div class="alert alert-success">
+        {{ session('status') }}
+    </div>
+@endif
+```
+
+#### Redirección con input
+
+Puede utilizar el método `withInput` proporcionado por la instancia `RedirectResponse` para flashear los datos de entrada de la solicitud actual en la sesión antes de redirigir al usuario a una nueva ubicación. Esto se hace normalmente si el usuario ha encontrado un error de validación. Una vez que la entrada ha sido flasheada a la sesión, puede fácilmente [recuperarla](https://laravel.com/docs/10.x/requests#retrieving-old-input) durante la siguiente petición para repoblar el formulario:
+
+```php
+return back()->withInput();
+```
+
+## Otros tipos de respuestas
+
+El helper `response` puede utilizarse para generar otros tipos de instancias de respuesta. Cuando se llama al helper `response` sin argumentos, se devuelve una implementación del \[contrato] `Illuminate\Contracts\Routing\ResponseFactory`(https://laravel.com/docs/10.x/contracts). Este contrato proporciona varios métodos útiles para generar respuestas.
+
+### Respuestas de vista
+
+Si necesita controlar el estado y las cabeceras de la respuesta pero también necesita devolver una [vista](https://laravel.com/docs/10.x/views) como contenido de la respuesta, debe utilizar el método `view`:
+
+```php
+return response()
+            ->view('hello', $data, 200)
+            ->header('Content-Type', $type);
+```
+
+Por supuesto, si no necesita pasar un código de estado HTTP personalizado o encabezados personalizados, puede utilizar la función helper global `view`.
+
+### Respuestas JSON
+
+El método `json` establecerá automáticamente el header `Content-Type` a `application/json`, así como convertirá el array dado a JSON usando la función PHP `json_encode`:
+
+```php
+return response()->json([
+    'name' => 'Abigail',
+    'state' => 'CA',
+]);
+```
+
+Si desea crear una respuesta JSONP, puede utilizar el método `json` en combinación con el método `withCallback`:
+
+```php
+return response()
+            ->json(['name' => 'Abigail', 'state' => 'CA'])
+            ->withCallback($request->input('callback'));
+```
+
+### Descarga de archivos
+
+El método `download` puede utilizarse para generar una respuesta que fuerce al navegador del usuario a descargar el fichero en la ruta dada. El método `download` acepta un nombre de fichero como segundo argumento del método, que determinará el nombre de fichero que verá el usuario que descargue el fichero. Finalmente, puede pasar un array de cabeceras HTTP como tercer argumento al método:
+
+```php
+return response()->download($pathToFile);
+ 
+return response()->download($pathToFile, $name, $headers);
+```
+
+{% hint style="info" %}
+Symfony HttpFoundation, que gestiona las descargas de archivos, requiere que el archivo que se descarga tenga un nombre de archivo ASCII.
+{% endhint %}
+
+#### Descargas en streaming
+
+A veces puede que desee convertir la cadena de respuesta de una operación dada en una respuesta descargable sin tener que escribir el contenido de la operación en el disco. En este caso puede utilizar el método `streamDownload`. Este método acepta como argumentos una llamada de retorno, un nombre de fichero y un array opcional de cabeceras:
+
+```php
+use App\Services\GitHub;
+ 
+return response()->streamDownload(function () {
+    echo GitHub::api('repo')
+                ->contents()
+                ->readme('laravel', 'laravel')['contents'];
+}, 'laravel-readme.md');
+```
+
+### Respuestas de archivos
+
+El método `file` puede utilizarse para mostrar un archivo, como una imagen o un PDF, directamente en el navegador del usuario en lugar de iniciar una descarga. Este método acepta la ruta al archivo como primer argumento y una matriz de cabeceras como segundo argumento:
+
+```php
+return response()->file($pathToFile);
+ 
+return response()->file($pathToFile, $headers);
+```
+
+## Macros de respuesta
+
+Si quieres definir una respuesta personalizada que puedas reutilizar en varias de tus rutas y controladores, puedes utilizar el método `macro` de la fachada `Response`. Normalmente, deberías llamar a este método desde el método `boot` de uno de los [service providers de tu aplicación](https://laravel.com/docs/10.x/providers), como el proveedor de servicios `AppProviders\AppServiceProvider`:
+
+```php
+<?php
+ 
+namespace App\Providers;
+ 
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\ServiceProvider;
+ 
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Response::macro('caps', function (string $value) {
+            return Response::make(strtoupper($value));
+        });
+    }
+}
+```
+
+La función `macro` acepta un nombre como primer argumento y un closure como segundo. El closure de la macro se ejecutará cuando se llame al nombre de la macro desde una implementación de `ResponseFactory` o el helper `response`:
+
+```php
+return response()->caps('foo');
+```
