@@ -27,6 +27,8 @@
   * [Solicitudes HTTP](reference/fundamentos/solicitudes-http.md)
   * [Respuestas HTTP](reference/fundamentos/respuestas-http.md)
   * [Vistas](reference/fundamentos/vistas.md)
+  * [Plantillas de Blade](reference/fundamentos/plantillas-de-blade.md)
+  * [Asset Bundling (Vite)](reference/fundamentos/asset-bundling-vite.md)
   * [Generación de URLs](reference/fundamentos/generacion-de-urls.md)
   * [Sesión HTTP](reference/fundamentos/sesion-http.md)
   * [Validación](reference/fundamentos/validacion.md)
