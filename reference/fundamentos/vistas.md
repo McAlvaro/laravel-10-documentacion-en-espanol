@@ -107,3 +107,169 @@ return view('greeting')
             ->with('name', 'Victoria')
             ->with('occupation', 'Astronaut');
 ```
+
+### Compartir datos con todas las vistas
+
+Ocasionalmente, puedes necesitar compartir datos con todas las vistas que son renderizadas por tu aplicación. Puedes hacerlo utilizando el método `share` de la fachada `View`. Típicamente, deberías colocar llamadas al método `share` dentro del método `boot` de un proveedor de servicios. Eres libre de añadirlos a la clase `App\Providers\AppServiceProvider` o generar un proveedor de servicios independiente para alojarlos:
+
+```php
+<?php
+ 
+namespace App\Providers;
+ 
+use Illuminate\Support\Facades\View;
+ 
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // ...
+    }
+ 
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        View::share('key', 'value');
+    }
+}
+```
+
+## View Composers
+
+Los view composers son callbacks o métodos de clase que se llaman cuando se renderiza una vista. Si tienes datos que quieres que se vinculen a una vista cada vez que ésta se renderiza, un compositor de vistas puede ayudarte a organizar esa lógica en una única ubicación. Los view composers pueden ser particularmente útiles si la misma vista es devuelta por múltiples rutas o controladores dentro de tu aplicación y siempre necesita un dato en particular.
+
+Típicamente, los compositores de vistas serán registrados dentro de uno de los [proveedores de servicios de tu aplicación](https://laravel.com/docs/10.x/providers). En este ejemplo, asumiremos que hemos creado un nuevo `App\Providers\ViewServiceProvider` para alojar esta lógica.
+
+Usaremos el método `composer` de la fachada `View` para registrar el compositor de vistas. Laravel no incluye un directorio por defecto para los compositores de vistas basados en clases, así que eres libre de organizarlos como quieras. Por ejemplo, puedes crear un directorio `app/View/Composers` para alojar todos los compositores de vistas de tu aplicación:
+
+```php
+<?php
+ 
+namespace App\Providers;
+ 
+use App\View\Composers\ProfileComposer;
+use Illuminate\Support\Facades;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View;
+ 
+class ViewServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // ...
+    }
+ 
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Using class based composers...
+        Facades\View::composer('profile', ProfileComposer::class);
+ 
+        // Using closure based composers...
+        Facades\View::composer('welcome', function (View $view) {
+            // ...
+        });
+ 
+        Facades\View::composer('dashboard', function (View $view) {
+            // ...
+        });
+    }
+}
+```
+
+{% hint style="info" %}
+Recuerde que si crea un nuevo proveedor de servicios para contener sus registros de compositores de vistas, deberá añadir el proveedor de servicios a la matriz `providers` del archivo de configuración `config/app.php`.
+{% endhint %}
+
+Ahora que hemos registrado el compositor, el método `compose` de la clase `App\View\Composers\ProfileComposer` será ejecutado cada vez que la vista `profile` sea renderizada. Veamos un ejemplo de la clase composer:
+
+```php
+<?php
+ 
+namespace App\View\Composers;
+ 
+use App\Repositories\UserRepository;
+use Illuminate\View\View;
+ 
+class ProfileComposer
+{
+    /**
+     * Create a new profile composer.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+ 
+    /**
+     * Bind data to the view.
+     */
+    public function compose(View $view): void
+    {
+        $view->with('count', $this->users->count());
+    }
+}
+```
+
+Como puedes ver, todos los compositores de vistas se resuelven a través del [contenedor de servicios](https://laravel.com/docs/10.x/container), por lo que puedes escribir cualquier dependencia que necesites dentro del constructor de un compositor.
+
+#### Adjuntar un compositor a varias vistas
+
+Puedes adjuntar un compositor de vistas a varias vistas a la vez pasando un array de vistas como primer argumento al método `composer`:
+
+```php
+use App\Views\Composers\MultiComposer;
+use Illuminate\Support\Facades\View;
+ 
+View::composer(
+    ['profile', 'dashboard'],
+    MultiComposer::class
+);
+```
+
+El método `composer` también acepta el carácter `*` como comodín, lo que permite adjuntar un compositor a todas las vistas:
+
+```php
+use Illuminate\Support\Facades;
+use Illuminate\View\View;
+ 
+Facades\View::composer('*', function (View $view) {
+    // ...
+});
+```
+
+### Creadores de vista
+
+Los "creadores" de vistas son muy similares a los compositores de vistas; sin embargo, se ejecutan inmediatamente después de instanciar la vista en lugar de esperar a que la vista esté a punto de renderizarse. Para registrar un creador de vistas, utilice el método `creator`:
+
+```php
+use App\View\Creators\ProfileCreator;
+use Illuminate\Support\Facades\View;
+ 
+View::creator('profile', ProfileCreator::class);
+```
+
+## Optimización de vistas
+
+Por defecto, las vistas de la plantilla Blade se compilan bajo demanda. Cuando se ejecuta una petición que renderiza una vista, Laravel determinará si existe una versión compilada de la vista. Si el fichero existe, Laravel determinará si la vista no compilada ha sido modificada más recientemente que la vista compilada. Si la vista compilada no existe, o la vista no compilada ha sido modificada, Laravel recompilará la vista.
+
+Compilar vistas durante la petición puede tener un pequeño impacto negativo en el rendimiento, por lo que Laravel proporciona el comando Artisan `view:cache` para precompilar todas las vistas utilizadas por tu aplicación. Para aumentar el rendimiento, es posible que desees ejecutar este comando como parte de tu proceso de despliegue:
+
+```sh
+php artisan view:cache
+```
+
+Puede utilizar el comando `view:clear` para borrar la caché de vista:
+
+```sh
+php artisan view:clear
+```
