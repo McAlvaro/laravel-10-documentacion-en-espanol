@@ -522,3 +522,55 @@ También puede pasar un cuarto argumento a la directiva `@each`. Este argumento 
 Las vistas renderizadas mediante `@each` no heredan las variables de la vista padre. Si la vista hija necesita estas variables, debe utilizar las directivas `@foreach` e `@include` en su lugar.
 {% endhint %}
 
+### La directiva `@once`
+
+La directiva `@once` permite definir una parte de la plantilla que sólo se evaluará una vez por ciclo de renderizado. Esto puede ser útil para empujar una determinada pieza de JavaScript en el header de la página usando stacks. Por ejemplo, si está renderizando un componente determinado dentro de un bucle, puede que desee enviar el JavaScript a la cabecera sólo la primera vez que se renderice el componente:
+
+```php
+@once
+    @push('scripts')
+        <script>
+            // Your custom JavaScript...
+        </script>
+    @endpush
+@endonce
+```
+
+Dado que la directiva `@once` se utiliza a menudo junto con las directivas `@push` o `@prepend`, las directivas `@pushOnce` y `@prependOnce` están disponibles para su comodidad:
+
+```php
+@pushOnce('scripts')
+    <script>
+        // Your custom JavaScript...
+    </script>
+@endPushOnce
+```
+
+#### PHP crudo
+
+En algunas situaciones, es útil incrustar código PHP en las vistas. Puedes usar la directiva Blade `@php` para ejecutar un bloque de PHP plano dentro de tu plantilla:
+
+```php
+@php
+    $counter = 1;
+@endphp
+```
+
+Si sólo necesita escribir una única sentencia PHP, puede incluir la sentencia dentro de la directiva `@php`:
+
+```php
+@php($counter = 1)
+```
+
+### Comentarios
+
+Blade también permite definir comentarios en las vistas. Sin embargo, a diferencia de los comentarios HTML, los comentarios de Blade no se incluyen en el HTML devuelto por su aplicación:
+
+```php
+{{-- This comment will not be present in the rendered HTML --}}
+```
+
+## Componentes
+
+Los componentes y las ranuras proporcionan ventajas similares a las de las secciones, los diseños y los includes; sin embargo, algunos pueden encontrar el modelo mental de los componentes y las ranuras más fácil de entender. Existen dos enfoques para escribir componentes: componentes basados en clases y componentes anónimos.
+
