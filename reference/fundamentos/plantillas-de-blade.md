@@ -574,3 +574,104 @@ Blade también permite definir comentarios en las vistas. Sin embargo, a diferen
 
 Los componentes y las ranuras proporcionan ventajas similares a las de las secciones, los diseños y los includes; sin embargo, algunos pueden encontrar el modelo mental de los componentes y las ranuras más fácil de entender. Existen dos enfoques para escribir componentes: componentes basados en clases y componentes anónimos.
 
+Para crear un componente basado en una clase, puede utilizar el comando Artisan `make:component`. Para ilustrar el uso de componentes, crearemos un simple componente `Alert`. El comando `make:component` colocará el componente en el directorio `app/View/Components`:
+
+```sh
+php artisan make:component Alert
+```
+
+El comando `make:component` también creará una plantilla de vista para el componente. La vista se colocará en el directorio `resources/views/components`. Cuando escribes componentes para tu propia aplicación, los componentes se descubren automáticamente en el directorio `app/View/Components` y en el directorio `resources/views/components`, por lo que normalmente no es necesario registrar más componentes.
+
+También puede crear componentes dentro de subdirectorios:
+
+```
+php artisan make:component Forms/Input
+```
+
+El comando anterior creará un componente `Input` en el directorio `app/View/Components/Forms` y la vista se colocará en el directorio `resources/views/components/forms`.
+
+Si desea crear un componente anónimo (un componente con sólo una plantilla Blade y sin clase), puede utilizar la bandera `--view` al invocar el comando `make:component`:
+
+```sh
+php artisan make:component forms.input --view
+```
+
+El comando anterior creará un archivo Blade en `resources/views/components/forms/input.blade.php` que puede ser renderizado como un componente a través de `<x-forms.input />`.
+
+#### Registro manual de componentes de paquetes
+
+Al escribir componentes para su propia aplicación, los componentes se descubren automáticamente en el directorio `app/View/Components` y en el directorio `resources/views/components`.
+
+Sin embargo, si está creando un paquete que utiliza componentes Blade, tendrá que registrar manualmente su clase de componente y su alias de etiqueta HTML. Normalmente debe registrar sus componentes en el método `boot` del proveedor de servicios de su paquete:
+
+```php
+use Illuminate\Support\Facades\Blade;
+ 
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::component('package-alert', Alert::class);
+}
+```
+
+Una vez registrado el componente, puede renderizarse utilizando su alias de etiqueta:
+
+```php
+<x-package-alert/>
+```
+
+Alternativamente, puede utilizar el método `componentNamespace` para autocargar clases de componentes por convención. Por ejemplo, un paquete `Nightshade` puede tener componentes `Calendar` y `ColorPicker` que residen dentro del espacio de nombres `Package\Views\Components`:
+
+```php
+use Illuminate\Support\Facades\Blade;
+ 
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::componentNamespace('Nightshade\\Views\\Components', 'nightshade');
+}
+```
+
+Esto permitirá el uso de componentes de paquete por su espacio de nombres de proveedor utilizando la sintaxis `nombre-paquete::`:
+
+```php
+<x-nightshade::calendar />
+<x-nightshade::color-picker />
+```
+
+Blade detectará automáticamente la clase vinculada a este componente escribiendo el nombre del componente en pascal. También se admiten subdirectorios utilizando la notación "punto".
+
+### Renderizando Componentes
+
+Para mostrar un componente, puede utilizar una etiqueta de componente Blade dentro de una de sus plantillas Blade. Las etiquetas de componente Blade comienzan con la cadena `x-` seguida del nombre en mayúsculas y minúsculas de la clase de componente:
+
+```php
+<x-alert/>
+ 
+<x-user-profile/>
+```
+
+Si la clase del componente está anidada a mayor profundidad dentro del directorio `app/View/Components`, puede utilizar el carácter `.` para indicar la anidación de directorios. Por ejemplo, si asumimos que un componente está localizado en `app/View/Components/Inputs/Button.php`, podemos renderizarlo así:
+
+```php
+<x-inputs.button/>
+```
+
+Si desea renderizar condicionalmente su componente, puede definir un método `shouldRender` en su clase componente. Si el método `shouldRender` devuelve `false` el componente no será renderizado:
+
+```php
+use Illuminate\Support\Str;
+ 
+/**
+ * Whether the component should be rendered
+ */
+public function shouldRender(): bool
+{
+    return Str::length($this->message) > 0;
+}
+```
+
