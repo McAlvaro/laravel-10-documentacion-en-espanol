@@ -502,3 +502,23 @@ Para incluir la primera vista que exista de un conjunto dado de vistas, puede ut
 Debe evitar utilizar las constantes `__DIR__` y `__FILE__` en sus vistas Blade, ya que se referirán a la ubicación de la vista compilada en caché.
 {% endhint %}
 
+#### Representación de vistas para colecciones
+
+Puede combinar bucles e includes en una línea con la directiva `@each` de Blade:
+
+```php
+@each('view.name', $jobs, 'job')
+```
+
+El primer argumento de la directiva `@each` es la vista que se mostrará para cada elemento del array o colección. El segundo argumento es la matriz o colección sobre la que se desea iterar, mientras que el tercer argumento es el nombre de la variable que se asignará a la iteración actual dentro de la vista. Así, por ejemplo, si estás iterando sobre un array de `jobs`, normalmente querrás acceder a cada job como una variable `job` dentro de la vista. La clave del array para la iteración actual estará disponible como la variable `key` dentro de la vista.
+
+También puede pasar un cuarto argumento a la directiva `@each`. Este argumento determina la vista que se mostrará si la matriz dada está vacía.
+
+```php
+@each('view.name', $jobs, 'job', 'view.empty')
+```
+
+{% hint style="info" %}
+Las vistas renderizadas mediante `@each` no heredan las variables de la vista padre. Si la vista hija necesita estas variables, debe utilizar las directivas `@foreach` e `@include` en su lugar.
+{% endhint %}
+
