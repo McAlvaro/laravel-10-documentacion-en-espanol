@@ -675,3 +675,212 @@ public function shouldRender(): bool
 }
 ```
 
+### Pasar datos a los componentes
+
+Puede pasar datos a los componentes Blade utilizando atributos HTML. Los valores primitivos codificados pueden pasarse al componente mediante cadenas de atributos HTML simples. Las expresiones y variables PHP deben pasarse al componente mediante atributos que utilicen el carácter `:` como prefijo:
+
+```php
+<x-alert type="error" :message="$message"/>
+```
+
+Debe definir todos los atributos de datos del componente en su constructor de clase. Todas las propiedades públicas de un componente se pondrán automáticamente a disposición de la vista del componente. No es necesario pasar los datos a la vista desde el método `render` del componente:
+
+```php
+<?php
+ 
+namespace App\View\Components;
+ 
+use Illuminate\View\Component;
+use Illuminate\View\View;
+ 
+class Alert extends Component
+{
+    /**
+     * Create the component instance.
+     */
+    public function __construct(
+        public string $type,
+        public string $message,
+    ) {}
+ 
+    /**
+     * Get the view / contents that represent the component.
+     */
+    public function render(): View
+    {
+        return view('components.alert');
+    }
+}
+```
+
+Cuando su componente es renderizado, puede mostrar el contenido de las variables públicas de su componente haciendo eco de las variables por su nombre:
+
+```atom
+<div class="alert alert-{{ $type }}">
+    {{ $message }}
+</div>
+```
+
+#### Casing
+
+Los argumentos de los constructores de componentes deben especificarse utilizando `camelCase`, mientras que `kebab-case` debe utilizarse cuando se haga referencia a los nombres de los argumentos en los atributos HTML. Por ejemplo, dado el siguiente constructor de componente:
+
+```php
+/**
+ * Create the component instance.
+ */
+public function __construct(
+    public string $alertType,
+) {}
+```
+
+El argumento `$alertType` puede proporcionarse al componente del siguiente modo:
+
+```atom
+<x-alert alert-type="danger" />
+```
+
+#### Sintaxis corta de atributos
+
+Al pasar atributos a los componentes, también puede utilizar una sintaxis de "atributo corto". Esto suele ser conveniente, ya que los nombres de los atributos suelen coincidir con los nombres de las variables a las que corresponden:
+
+```atom
+{{-- Short attribute syntax... --}}
+<x-profile :$userId :$name />
+ 
+{{-- Is equivalent to... --}}
+<x-profile :user-id="$userId" :name="$name" />
+```
+
+#### Escapar de la renderización de atributos
+
+Dado que algunos frameworks JavaScript como Alpine.js también utilizan atributos con prefijo de dos puntos, puede utilizar un prefijo de dos puntos dobles (`::`) para informar a Blade de que el atributo no es una expresión PHP. Por ejemplo, dado el siguiente componente:
+
+```atom
+<x-button ::class="{ danger: isDeleting }">
+    Submit
+</x-button>
+```
+
+El siguiente HTML será renderizado por Blade:
+
+```atom
+<button :class="{ danger: isDeleting }">
+    Submit
+</button>
+```
+
+#### Métodos de los componentes
+
+Además de que las variables públicas estén disponibles para su plantilla de componentes, cualquier método público del componente puede ser invocado. Por ejemplo, imagine un componente que tiene un método `isSelected`:
+
+```php
+/**
+ * Determine if the given option is the currently selected option.
+ */
+public function isSelected(string $option): bool
+{
+    return $option === $this->selected;
+}
+```
+
+Puede ejecutar este método desde su plantilla de componentes invocando la variable que coincida con el nombre del método:
+
+```atom
+<option {{ $isSelected($value) ? 'selected' : '' }} value="{{ $value }}">
+    {{ $label }}
+</option>
+```
+
+#### Acceso a atributos y slots dentro de clases de componentes
+
+Los componentes Blade también le permiten acceder al nombre del componente, atributos y slot dentro del método render de la clase. Sin embargo, para acceder a estos datos, debe devolver un closure desde el método `render` de su componente. El closure recibirá un array `$data` como único argumento. Este array contendrá varios elementos que proporcionan información sobre el componente:
+
+```php
+use Closure;
+ 
+/**
+ * Get the view / contents that represent the component.
+ */
+public function render(): Closure
+{
+    return function (array $data) {
+        // $data['componentName'];
+        // $data['attributes'];
+        // $data['slot'];
+ 
+        return '<div>Components content</div>';
+    };
+}
+```
+
+El `componentName` es igual al nombre utilizado en la etiqueta HTML después del prefijo `x-`. Así, el `componentName` de `<x-alert />` será `alert`. El elemento `attributes` contendrá todos los atributos presentes en la etiqueta HTML. El elemento `slot` es una instancia de `Illuminate\Support\HtmlString` con el contenido de la ranura del componente.
+
+El closure debe devolver una cadena. Si la cadena devuelta corresponde a una vista existente, esa vista se renderizará; en caso contrario, la cadena devuelta se evaluará como una vista Blade en línea.
+
+#### Dependencias adicionales
+
+Si tu componente requiere dependencias del [contenedor de servicios de Laravel](https://laravel.com/docs/10.x/container), puedes listarlas antes de cualquiera de los atributos de datos del componente y serán automáticamente inyectadas por el contenedor:
+
+```php
+use App\Services\AlertCreator;
+ 
+/**
+ * Create the component instance.
+ */
+public function __construct(
+    public AlertCreator $creator,
+    public string $type,
+    public string $message,
+) {}
+```
+
+#### Ocultar atributos / métodos
+
+Si desea evitar que algunos métodos públicos o propiedades sean expuestos como variables a su plantilla de componentes, puede añadirlos a una propiedad `$except` array en su componente:
+
+```php
+<?php
+ 
+namespace App\View\Components;
+ 
+use Illuminate\View\Component;
+ 
+class Alert extends Component
+{
+    /**
+     * The properties / methods that should not be exposed to the component template.
+     *
+     * @var array
+     */
+    protected $except = ['type'];
+ 
+    /**
+     * Create the component instance.
+     */
+    public function __construct(
+        public string $type,
+    ) {}
+}
+```
+
+### Atributos de los componentes
+
+Ya hemos examinado cómo pasar atributos de datos a un componente; sin embargo, a veces puede ser necesario especificar atributos HTML adicionales, como `class`, que no forman parte de los datos necesarios para que funcione un componente. Normalmente, estos atributos adicionales se pasan al elemento raíz de la plantilla del componente. Por ejemplo, imaginemos que queremos mostrar un componente `alert` de la siguiente manera:
+
+```atom
+<x-alert type="error" :message="$message" class="mt-4"/>
+```
+
+Todos los atributos que no formen parte del constructor del componente se añadirán automáticamente a la "bolsa de atributos" del componente. Esta bolsa de atributos se pone automáticamente a disposición del componente a través de la variable `$attributes`. Todos los atributos se pueden mostrar dentro del componente haciendo eco de esta variable:
+
+```atom
+<div {{ $attributes }}>
+    <!-- Component content -->
+</div>
+```
+
+{% hint style="info" %}
+El uso de directivas como `@env` dentro de las etiquetas de los componentes no está soportado en este momento. Por ejemplo, `<x-alert :live="@env('production')"/>` no se compilará.
+{% endhint %}
+
