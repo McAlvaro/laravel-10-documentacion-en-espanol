@@ -884,3 +884,49 @@ Todos los atributos que no formen parte del constructor del componente se añadi
 El uso de directivas como `@env` dentro de las etiquetas de los componentes no está soportado en este momento. Por ejemplo, `<x-alert :live="@env('production')"/>` no se compilará.
 {% endhint %}
 
+#### Atributos por defecto / fusionados
+
+A veces puede ser necesario especificar valores por defecto para los atributos o combinar valores adicionales en algunos de los atributos del componente. Para ello, puede utilizar el método `merge` de la bolsa de atributos. Este método es especialmente útil para definir un conjunto de clases CSS predeterminadas que deben aplicarse siempre a un componente:
+
+```atom
+<div {{ $attributes->merge(['class' => 'alert alert-'.$type]) }}>
+    {{ $message }}
+</div>
+```
+
+Si suponemos que este componente se utiliza así:
+
+```atom
+<x-alert type="error" :message="$message" class="mb-4"/>
+```
+
+El HTML final renderizado del componente tendrá el siguiente aspecto:
+
+```atom
+<div class="alert alert-error mb-4">
+    <!-- Contents of the $message variable -->
+</div>
+```
+
+#### Fusionar clases condicionalmente
+
+A veces es posible que desee combinar clases si una condición dada es `true`. Puede hacerlo mediante el método `class`, que acepta un array de clases donde la clave del array contiene la clase o clases que desea añadir, mientras que el valor es una expresión booleana. Si el elemento del array tiene una clave numérica, siempre se incluirá en la lista de clases generada:
+
+```atom
+<div {{ $attributes->class(['p-4', 'bg-red' => $hasError]) }}>
+    {{ $message }}
+</div>
+```
+
+Si necesita combinar otros atributos en su componente, puede encadenar el método `merge` en el método `class`:
+
+```atom
+<button {{ $attributes->class(['p-4'])->merge(['type' => 'button']) }}>
+    {{ $slot }}
+</button>
+```
+
+{% hint style="info" %}
+Si necesita compilar condicionalmente clases en otros elementos HTML que no deben recibir atributos fusionados, puede utilizar la directiva `@class`.
+{% endhint %}
+
