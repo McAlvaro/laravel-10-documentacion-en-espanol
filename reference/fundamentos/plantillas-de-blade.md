@@ -1178,3 +1178,28 @@ Una vez registrado el componente, puede renderizarse utilizando su alias de etiq
 <x-package-alert/>
 ```
 
+#### Componentes del paquete de carga automática
+
+Alternativamente, puede utilizar el método `componentNamespace` para autocargar clases de componentes por convención. Por ejemplo, un paquete `Nightshade` puede tener componentes `Calendar` y `ColorPicker` que residen dentro del espacio de nombres `Package\Views\Components`:
+
+```php
+use Illuminate\Support\Facades\Blade;
+ 
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::componentNamespace('Nightshade\\Views\\Components', 'nightshade');
+}
+```
+
+Esto permitirá el uso de componentes de paquete por su espacio de nombres de proveedor utilizando la sintaxis `nombre-paquete::`:
+
+```atom
+<x-nightshade::calendar />
+<x-nightshade::color-picker />
+```
+
+Blade detectará automáticamente la clase vinculada a este componente escribiendo el nombre del componente en pascal. También se admiten subdirectorios utilizando la notación "punto".
+
