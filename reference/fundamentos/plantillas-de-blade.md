@@ -1004,3 +1004,61 @@ Puede recuperar el valor de un atributo específico utilizando el método `get`:
 {{ $attributes->get('class') }}
 ```
 
+### Palabras clave reservadas
+
+Por defecto, algunas palabras clave están reservadas para el uso interno de Blade con el fin de renderizar componentes. Las siguientes palabras clave no se pueden definir como propiedades públicas o nombres de métodos dentro de sus componentes:
+
+* `data`
+* `render`
+* `resolveView`
+* `shouldRender`
+* `view`
+* `withAttributes`
+* `withName`
+
+### Slots
+
+A menudo necesitará pasar contenido adicional a su componente a través de "slots". Los "slots" de los componentes se renderizan haciendo eco de la variable `$slot`. Para explorar este concepto, imaginemos que un componente `alert` tiene el siguiente marcado:
+
+```atom
+<!-- /resources/views/components/alert.blade.php -->
+ 
+<div class="alert alert-danger">
+    {{ $slot }}
+</div>
+```
+
+Podemos pasar contenido al “slot" inyectando contenido en el componente:
+
+```atom
+<x-alert>
+    <strong>Whoops!</strong> Something went wrong!
+</x-alert>
+```
+
+A veces, un componente puede necesitar mostrar varias ranuras diferentes en distintas ubicaciones dentro del componente. Modifiquemos nuestro componente de alerta para permitir la inyección de una ranura de "título":
+
+```atom
+<!-- /resources/views/components/alert.blade.php -->
+ 
+<span class="alert-title">{{ $title }}</span>
+ 
+<div class="alert alert-danger">
+    {{ $slot }}
+</div>
+```
+
+Puede definir el contenido de la ranura con la etiqueta `x-slot`. Cualquier contenido que no esté dentro de una etiqueta `x-slot` explícita se pasará al componente en la variable `$slot`:
+
+```atom
+<x-alert>
+    <x-slot:title>
+        Server Error
+    </x-slot>
+ 
+    <strong>Whoops!</strong> Something went wrong!
+</x-alert>
+```
+
+
+
