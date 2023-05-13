@@ -930,3 +930,77 @@ Si necesita combinar otros atributos en su componente, puede encadenar el métod
 Si necesita compilar condicionalmente clases en otros elementos HTML que no deben recibir atributos fusionados, puede utilizar la directiva `@class`.
 {% endhint %}
 
+#### Fusión de atributos sin clase
+
+Al fusionar atributos que no son atributos `class`, los valores proporcionados al método `merge` se considerarán los valores "por defecto" del atributo. Sin embargo, a diferencia del atributo `class`, estos atributos no se fusionarán con valores de atributo inyectados. En su lugar, se sobrescribirán. Por ejemplo, la implementación de un componente `button` puede tener el siguiente aspecto:
+
+```atom
+<button {{ $attributes->merge(['type' => 'button']) }}>
+    {{ $slot }}
+</button>
+```
+
+Para renderizar el componente button con un `type` personalizado, se puede especificar al consumir el componente. Si no se especifica ningún tipo, se utilizará el tipo `button`:
+
+```atom
+<x-button type="submit">
+    Submit
+</x-button>
+```
+
+El HTML renderizado del componente `button` en este ejemplo sería:
+
+```atom
+<button type="submit">
+    Submit
+</button>
+```
+
+Si desea que un atributo distinto de `class` tenga su valor por defecto y los valores inyectados unidos, puede utilizar el método `prepends`. En este ejemplo, el atributo `data-controller` comenzará siempre con `profile-controller` y cualquier valor adicional inyectado de `data-controller` se colocará después de este valor por defecto:
+
+```atom
+<div {{ $attributes->merge(['data-controller' => $attributes->prepends('profile-controller')]) }}>
+    {{ $slot }}
+</div>
+```
+
+#### Recuperación y filtrado de atributos
+
+Puedes filtrar atributos utilizando el método `filter`. Este método acepta un closure que debe devolver `true` si deseas mantener el atributo en la bolsa de atributos:
+
+```php
+{{ $attributes->filter(fn (string $value, string $key) => $key == 'foo') }}
+```
+
+Para mayor comodidad, puede utilizar el método `whereStartsWith` para recuperar todos los atributos cuyas claves empiecen por una cadena determinada:
+
+```php
+{{ $attributes->whereStartsWith('wire:model') }}
+```
+
+Por el contrario, el método `whereDoesntStartWith` puede utilizarse para excluir todos los atributos cuyas claves empiecen por una cadena determinada:
+
+```php
+{{ $attributes->whereDoesntStartWith('wire:model') }}
+```
+
+Utilizando el método `first`, puedes renderizar el primer atributo de una bolsa de atributos dada:
+
+```php
+{{ $attributes->whereStartsWith('wire:model')->first() }}
+```
+
+Si desea comprobar si un atributo está presente en el componente, puede utilizar el método `has`. Este método acepta el nombre del atributo como único argumento y devuelve un booleano que indica si el atributo está presente o no:
+
+```php
+@if ($attributes->has('class'))
+    <div>Class attribute is present</div>
+@endif
+```
+
+Puede recuperar el valor de un atributo específico utilizando el método `get`:
+
+```php
+{{ $attributes->get('class') }}
+```
+
