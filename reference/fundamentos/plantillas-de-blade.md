@@ -1113,5 +1113,68 @@ Para interactuar con los atributos de la ranura, puede acceder a la propiedad `a
 </div>
 ```
 
+### Vistas de componentes en línea
 
+Para componentes muy pequeños, puede resultar engorroso gestionar tanto la clase del componente como la plantilla de vista del componente. Por esta razón, puede devolver el marcado del componente directamente desde el método `render`:
+
+```php
+/**
+ * Get the view / contents that represent the component.
+ */
+public function render(): string
+{
+    return <<<'blade'
+        <div class="alert alert-danger">
+            {{ $slot }}
+        </div>
+    blade;
+}
+```
+
+#### Generación de componentes de vista en línea
+
+Para crear un componente que muestre una vista en línea, puede utilizar la opción `inline` al ejecutar el comando `make:component`:
+
+```sh
+php artisan make:component Alert --inline
+```
+
+### Componentes dinámicos
+
+A veces puede necesitar renderizar un componente pero no saber qué componente debe ser renderizado hasta el tiempo de ejecución. En esta situación, puede utilizar el componente `dynamic-component` incorporado de Laravel para renderizar el componente basado en un valor o variable en tiempo de ejecución:
+
+```atom
+// $componentName = "secondary-button";
+ 
+<x-dynamic-component :component="$componentName" class="mt-4" />
+```
+
+### Registro manual de componentes
+
+{% hint style="info" %}
+La siguiente documentación sobre el registro manual de componentes se aplica principalmente a aquellos que están escribiendo paquetes Laravel que incluyen componentes de vista. Si no estás escribiendo un paquete, esta parte de la documentación de componentes puede no ser relevante para ti.
+{% endhint %}
+
+Al escribir componentes para su propia aplicación, los componentes se descubren automáticamente en el directorio `app/View/Components` y en el directorio `resources/views/components`.
+
+Sin embargo, si estás construyendo un paquete que utiliza componentes Blade o colocando componentes en directorios no convencionales, necesitarás registrar manualmente tu clase de componente y su alias de etiqueta HTML para que Laravel sepa dónde encontrar el componente. Normalmente deberías registrar tus componentes en el método `boot` del proveedor de servicios de tu paquete:
+
+```php
+use Illuminate\Support\Facades\Blade;
+use VendorPackage\View\Components\AlertComponent;
+ 
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::component('package-alert', AlertComponent::class);
+}
+```
+
+Una vez registrado el componente, puede renderizarse utilizando su alias de etiqueta:
+
+```atom
+<x-package-alert/>
+```
 
