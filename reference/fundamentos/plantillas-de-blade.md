@@ -1060,5 +1060,58 @@ Puede definir el contenido de la ranura con la etiqueta `x-slot`. Cualquier cont
 </x-alert>
 ```
 
+#### Alcance de Slot
+
+Si has utilizado un framework JavaScript como Vue, puede que estés familiarizado con los "scoped slots", que te permiten acceder a datos o métodos del componente dentro de tu slot. Puedes conseguir un comportamiento similar en Laravel definiendo métodos públicos o propiedades en tu componente y accediendo al componente dentro de tu slot a través de la variable `$component`. En este ejemplo, asumiremos que el componente `x-alert` tiene un método público `formatAlert` definido en su clase componente:
+
+```atom
+<x-alert>
+    <x-slot:title>
+        {{ $component->formatAlert('Server Error') }}
+    </x-slot>
+ 
+    <strong>Whoops!</strong> Something went wrong!
+</x-alert>
+```
+
+#### Atributos de slot
+
+Al igual que los componentes Blade, puede asignar atributos adicionales a las ranuras, como nombres de clases CSS:
+
+```atom
+<x-card class="shadow-sm">
+    <x-slot:heading class="font-bold">
+        Heading
+    </x-slot>
+ 
+    Content
+ 
+    <x-slot:footer class="text-sm">
+        Footer
+    </x-slot>
+</x-card>
+```
+
+Para interactuar con los atributos de la ranura, puede acceder a la propiedad `attributes` de la variable de la ranura. Para obtener más información sobre cómo interactuar con los atributos, consulte la documentación sobre atributos de los componentes:
+
+```atom
+@props([
+    'heading',
+    'footer',
+])
+ 
+<div {{ $attributes->class(['border']) }}>
+    <h1 {{ $heading->attributes->class(['text-lg']) }}>
+        {{ $heading }}
+    </h1>
+ 
+    {{ $slot }}
+ 
+    <footer {{ $footer->attributes->class(['text-gray-700']) }}>
+        {{ $footer }}
+    </footer>
+</div>
+```
+
 
 
